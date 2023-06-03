@@ -9,7 +9,8 @@
 
 This Github repo contains all lesson files for *Hierarchical Linear
 Models in R*. The goal is to impart students with the basic tools to
-construct, evaluate and compare various **machine learning models, using
+construct, evaluate and compare various **(generalized) linear mixed
+models, using
 [`lme4`](https://cran.r-project.org/web/packages/lme4/index.html/)**.
 (Materials developed with Yael Bar-Shachar.)
 

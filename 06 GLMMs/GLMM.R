@@ -51,17 +51,19 @@ ggplot(SFON_data, aes(weberFr, Attend)) +
 m0 <- glmer(Attend ~ (1 | ID),
             family = binomial("logit"),
             data = SFON_data)
+# - On average, do children tend to attend more or less?
+model_parameters(m0)
+# Coefficient is negative, hard to tell...
+model_parameters(m0, exponentiate = TRUE)
+# An Odds of 0.21 is ~1:4.5, or p = 0.17
+
+
 # - What is the ICC?
 icc(m0)
 # Note that logistic models don't have "error variance". Instead. level 1 variance is 
 # fixed at (pi^2)/3
 insight::get_variance_residual(m0)
 
-# - On average, do children tend to attend more or less?
-model_parameters(m0)
-# Coefficient is negative, hard to tell...
-model_parameters(m0, exponentiate = TRUE)
-# An Odds of 0.21 is ~1:4.5, or p = 0.17
 
 
 # Exercise ---------------------------------------------------------------
@@ -73,6 +75,7 @@ model_parameters(m0, exponentiate = TRUE)
 # 2. Fit a conditional model with a fixed effect for weberFr (on top of Age).
 # - Does it have a better fit than the previous model?
 # - What what is the slope of weberFr? Is it in the expected direction?
+#   - Use ggeffects::ggemmeans() to plot the effect!
 # - How much additional variation in the random intercept is explained by weberFr?
   
 

@@ -28,8 +28,11 @@ head(egsingle)
 
 # Intercepts only ---------------------------------------------------------
 
-m0 <- lmer(math ~ 1 + (1 | schoolid:childid) + (1 | schoolid),
+m0 <- lmer(math ~ 1 + (1 | childid:schoolid) + (1 | schoolid),
            data = egsingle)
+
+RE <- ranef(m0)
+names(RE)
 
 icc(m0) # variance explained by child and school.
 icc(m0, by_group = TRUE) # stability within Child (within school) and within school.
@@ -142,7 +145,8 @@ model_parameters(m2, effects = "fixed", ci_method = "S")
 
 # We can probe the interaction:
 emtrends(m2, ~ lowinc, var = "grade",
-         at = list(lowinc = c(0, 0.5, 1)))
+         at = list(lowinc = c(0, 50, 100)),
+         infer = TRUE)
 # We can see that across different %s of lower-income students, the growth model
 # is positive and of very similar magnitude.
 

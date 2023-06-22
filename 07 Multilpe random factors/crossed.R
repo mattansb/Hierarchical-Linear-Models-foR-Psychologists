@@ -2,6 +2,7 @@ library(dplyr)
 library(lmerTest)
 library(performance)
 library(ggplot2)
+library(parameters)
 
 order_data <- read.csv("order.csv")
 head(order_data)
@@ -61,8 +62,8 @@ m1 <- lmer(rt ~ Condition + (1 | Subject) + (1 | Stim),
 VarCorr(m0)
 VarCorr(m1)
 
-1 - (115.22 / 120.02) ^ 2
-# Accounting for ~8% of the variance in the time it take to respond to them.
+1 - (120.02 / 115.22) ^ 2
+# Accounting for ~0% of the variance in the time it take to respond to them.
 
 anova(m1, m0) 
 # However, this effect if non-sig, and both BIC and AIC support the simpler
@@ -80,7 +81,8 @@ anova(m1, m1r, refit = FALSE)
 # Seems like there *isn't* much difference between subjects in their
 # order-effects.
 
-summary(m1r)
+model_parameters(m1r)
+VarCorr(m1r)
 # We can see that ordered stimuli are responded to faster, but there results are
 # not significant.
 
@@ -118,7 +120,7 @@ m2r <- lmer(rt ~ Condition + Sex + (Condition | Subject) + (Sex | Stim),
 anova(m2, m2r, refit = FALSE)
 # Seems like some Stimuli evoke larger sex differences than others!
 
-
+VarCorr(m2r)
 
 
 

@@ -63,7 +63,7 @@ ggplot(egsingle, aes(grade, math)) +
   labs(title = "Trend per school")
 
 
-m1 <- lmer(math ~ grade + (1 | schoolid:childid) + (1 | schoolid),
+m1 <- lmer(math ~ grade + (1 | childid:schoolid) + (1 | schoolid),
            data = egsingle)
 anova(m1, m0)
 # Not surprisingly, the growth model is supported.
@@ -82,7 +82,7 @@ model_parameters(m1, effects = "fixed", ci_method = "S")
 # between children.
 
 # We can start by estimating the within child random effect:
-m1b <- lmer(math ~ grade + (grade | schoolid:childid) + (1 | schoolid),
+m1b <- lmer(math ~ grade + (grade | childid:schoolid) + (1 | schoolid),
             data = egsingle)
 anova(m1, m1b, refit = FALSE)
 # We can see that children do differ in their linear growth
@@ -98,7 +98,7 @@ VarCorr(m1b)
 
 
 # Now let's add the random slope for schools:
-m1c <- lmer(math ~ grade + (grade | schoolid:childid) + (grade | schoolid),
+m1c <- lmer(math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
             data = egsingle)
 
 VarCorr(m1c)
@@ -132,7 +132,7 @@ ggplot(egsingle, aes(grade, math)) +
 # have lower math grades. But are the slopes also different?
 
 
-m2 <- lmer(math ~ grade * lowinc + (grade | schoolid:childid) + (grade | schoolid),
+m2 <- lmer(math ~ grade * lowinc + (grade | childid:schoolid) + (grade | schoolid),
            data = egsingle)
 anova(m2, m1c)
 # The models are different - but this is the main effect and the interaction!
@@ -165,5 +165,5 @@ VarCorr(m2)
 
 # We also have the variable of "sex".
 # - Add it as a fixed effect and compute the relevant pseudo-R2.
-# - Can we add it as a random effect? Compute the chanve in variance.
+# - Can we add it as a random effect? Compute the change in variance.
 

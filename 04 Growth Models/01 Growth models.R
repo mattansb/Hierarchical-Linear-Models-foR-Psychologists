@@ -75,7 +75,7 @@ data |>
 ggplot(data, aes(session, rt)) + 
   geom_line(aes(colour = factor(PersonID)), 
             show.legend = FALSE) + 
-  geom_smooth(se = FALSE, colour = "black", size = 1) + 
+  stat_smooth(se = FALSE, colour = "black", size = 1) + 
   labs(y = "reaction time")
   
 # Seems linear? Maybe not...

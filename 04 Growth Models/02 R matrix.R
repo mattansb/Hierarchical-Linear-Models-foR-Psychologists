@@ -9,7 +9,7 @@ data |>
   subset(PersonID %in% sample(PersonID, 16)) |> 
   ggplot(aes(session, rt)) +
   geom_point() +
-  geom_smooth(method = "lm") +
+  stat_smooth(method = "lm") +
   facet_wrap(~ PersonID, scales = "free") +
   theme_void()
 # Can you see the auto-correlation?

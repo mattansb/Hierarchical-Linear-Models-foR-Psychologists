@@ -454,7 +454,7 @@ head(datat)
 ## Spaghetti Plots
 ggplot(datat, aes(time, intimacy, colour = factor(id))) + 
   geom_line() +
-  geom_smooth(method = 'lm', se = FALSE,
+  stat_smooth(method = 'lm', se = FALSE,
               colour = "black", linewidth = 2) +
   facet_grid(cols = vars(treatment)) + 
   guides(colour = "none")

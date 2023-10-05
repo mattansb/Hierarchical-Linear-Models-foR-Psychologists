@@ -58,7 +58,7 @@ p_spaghetti <- ggplot(dataset.long, aes(x = Time, y = outcome, color = factor(Pe
   # add a line for each ID but don't show use a legend
   geom_line(show.legend = FALSE) + 
   # add the pattern of the mean slope (linear pattern)
-  geom_smooth(method = "lm", se = FALSE, 
+  stat_smooth(method = "lm", se = FALSE, 
               color = "black", linewidth = 2) + 
   scale_x_continuous(breaks = c(0, 1)) + 
   labs(x = "Time", y = "outcome") # use axis labels...

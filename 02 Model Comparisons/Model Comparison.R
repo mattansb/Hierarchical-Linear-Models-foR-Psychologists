@@ -27,7 +27,7 @@ head(dataset) # this is already in a stacked\long  format - cool!
 # Spaghetti plots- change in rt by session:
 ggplot(dataset, aes(x = session, y = rt, color = factor(PersonID)))+
   geom_line(show.legend = FALSE) +   
-  geom_smooth(method = "lm", se = FALSE, 
+  stat_smooth(method = "lm", se = FALSE, 
               color = "black", linewidth = 1)
 
 

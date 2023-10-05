@@ -49,17 +49,17 @@ ranova(m0)
 # grade=0 is preschool ("trom hova"). This is suitable for interpretation.
 
 ggplot(egsingle, aes(grade, math)) +
-  geom_smooth(aes(group = interaction(schoolid, childid)), 
+  stat_smooth(aes(group = interaction(schoolid, childid)), 
               method = "lm", se = FALSE,
               alpha = 0.2) +
-  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  stat_smooth(method = "lm", se = FALSE, color = "black") +
   labs(title = "Trend per child:school")
 
 ggplot(egsingle, aes(grade, math)) +
-  geom_smooth(aes(group = schoolid), 
+  stat_smooth(aes(group = schoolid), 
               method = "lm", se = FALSE,
               alpha = 0.2) +
-  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  stat_smooth(method = "lm", se = FALSE, color = "black") +
   labs(title = "Trend per school")
 
 
@@ -123,10 +123,10 @@ VarCorr(m1c)
 # the school on the linear growth.
 
 ggplot(egsingle, aes(grade, math)) +
-  geom_smooth(aes(group = schoolid, color = lowinc), 
+  stat_smooth(aes(group = schoolid, color = lowinc), 
               method = "lm", se = FALSE,
               alpha = 0.2) +
-  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  stat_smooth(method = "lm", se = FALSE, color = "black") +
   labs(title = "Trend per school")
 # From the plot, we can see that schools with a lower income student body
 # have lower math grades. But are the slopes also different?

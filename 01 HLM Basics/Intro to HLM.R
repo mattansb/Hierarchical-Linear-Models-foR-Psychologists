@@ -59,7 +59,7 @@ p_spaghetti <- ggplot(dataset.long, aes(x = Time, y = outcome, color = factor(Pe
   geom_line(show.legend = FALSE) + 
   # add the pattern of the mean slope (linear pattern)
   stat_smooth(method = "lm", se = FALSE, 
-              color = "black", linewidth = 2) + 
+              color = "black", linewidth = 1) + 
   scale_x_continuous(breaks = c(0, 1)) + 
   labs(x = "Time", y = "outcome") # use axis labels...
 p_spaghetti
@@ -173,8 +173,8 @@ emm_options(lmer.df = "satterthwaite") # setting the emm options to use
 
 # use emmeans's emtrends() function:
 TrendsByGroup <- emtrends(WPModel.con, # the model
-                          var = 'Time', # the IV
-                          ~group , # the moderator
+                          var = "Time", # the IV
+                          ~ group , # the moderator
                           infer = TRUE)
 TrendsByGroup
 

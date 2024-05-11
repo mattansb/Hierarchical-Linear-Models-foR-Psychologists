@@ -231,7 +231,9 @@ anova(model.r_intercepts, model.sess, refit = TRUE)
 # This is actually the default (we don't have to use this argument)
 
 # If you want to check it through Bayesian lenses:
-bayestestR::bayesfactor_models(model.sess, denominator = model.r_intercepts) 
+bayestestR::bayesfactor_models(model.sess, denominator = model.r_intercepts,
+                               estimator = "ML") 
+# estimator = "ML" is also the default!
 
 
 ### compare: model.sess VS model.r_sess_no_cov:
@@ -251,6 +253,8 @@ bayestestR::bayesfactor_models(model.sess, denominator = model.r_intercepts)
 
 anova(model.sess, model.r_sess_no_cov, refit = FALSE)
 
+bayestestR::bayesfactor_models(model.sess, denominator = model.r_sess_no_cov,
+                               estimator = "REML") 
 
 #>>> conclusion- the random slope model is better!
 

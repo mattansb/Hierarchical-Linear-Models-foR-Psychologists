@@ -1,5 +1,6 @@
+
 library(dplyr)
-library(lme4)
+library(lmerTest)
 
 
 # Data --------------------------------------------------------------------
@@ -11,16 +12,18 @@ data(stroop, package = "afex")
 
 stroop_1 <- stroop |> 
   filter(
-    study == "1",
     pno %in% paste0("s1_", 1:10),# use only 10 subjects for ease of example
     acc == 1
+  ) |> 
+  rename(
+    RT = rt
   )
 
 # Fit the model -----------------------------------------------------------
 
 # According to Barr et al (2014) https://doi.org/10.1016%2Fj.jml.2012.11.001
 # the random effects structure should be maximal as per the study design.
-# Here that mean (condition * congruency | pno)
+# Here that mean (condition * congruency | pno).
 
 # According to Lo and Andrews (2015) https://doi.org/10.3389/fpsyg.2015.01171
 # we should analyze RTs with a inverse-Gaussian likelihood, using an identity
@@ -30,8 +33,9 @@ stroop_1 <- stroop |>
 # This is by no means the only option - and there are many other methods
 # available. See: https://lindeloev.github.io/shiny-rt/
 
-m_inv.gaus <- glmer(rt ~ condition * congruency + (condition * congruency | pno),
+m_inv.gaus <- glmer(RT ~ condition * congruency + (condition * congruency | pno),
                     family = inverse.gaussian("identity"),
+                    control = glmerControl("nlminbwrap"),
                     data = stroop_1)
 
 
@@ -50,7 +54,7 @@ library(patchwork)
 
 
 # Let's compare to the standard-Gaussian (normal) model:
-m_gauss <- lmer(rt ~ condition * congruency + (condition * congruency | pno),
+m_gauss <- lmer(RT ~ condition * congruency + (condition * congruency | pno),
                 data = stroop_1)
 
 (plot(posterior_predictive_check(m_inv.gaus)) + ggtitle("Inverse Gaussian")) / 
@@ -63,7 +67,7 @@ m_gauss <- lmer(rt ~ condition * congruency + (condition * congruency | pno),
 
 
 # Another popular alternative is the log-normal likelihood, which can be fit by transforming the RTs.
-m_lnorm <- lmer(log(rt) ~ condition * congruency + (condition * congruency | pno),
+m_lnorm <- lmer(log(RT) ~ condition * congruency + (condition * congruency | pno),
                 data = stroop_1)
 
 
@@ -101,51 +105,31 @@ contrasts(stroop_1$congruency) <- contr.sum
 
 
 
-m_inv.gaus2 <- glmer(rt ~ condition * congruency + (condition * congruency | pno),
+m_inv.gaus2 <- glmer(RT ~ condition * congruency + (condition * congruency | pno),
                      family = inverse.gaussian("identity"),
+                     control = glmerControl("bobyqa"),
                      data = stroop_1)
 
 
 # We can obtain an Type-3 ANOVA table using the {car} package:
 car::Anova(m_inv.gaus2, type = 3)
-
-
-
 # This is actually an Analysis of Deviance Table (because we are using a
-# glm(m)), but everyone still seems to call it an ANOVA table or an ANOVA-like
+# GLM(M)), but everyone still seems to call it an ANOVA table or an ANOVA-like
 # table.
 
 
 
-## Using `mixed()` ---------------------------
-
-# The {afex} package has a conviniant function to produce the correct dummy coding and
-# type 3 ANOVA table in one go:
-
-library(afex)
-a <- mixed(rt ~ condition * congruency + (condition * congruency | pno),
-           family = inverse.gaussian("identity"),
-           data = stroop_1, 
-           # See ?mixed
-           type = 3,
-           method = "LRT",
-           check_contrasts = TRUE)
-# This takes longer to run, but gives more accurate results than what we did
-# above.
-
-a
-
-
-
-
 # Follow-up ---------------------------------------------------------------
+# Contrasts, simple effects, etc. can all be carried out with {emmeans}, just
+# like with a standard ANOVA. See
+# https://github.com/mattansb/Analysis-of-Factorial-Designs-foR-Psychologists
 
-# We can run any followup simple effects or contrasts with emmeans:
 library(emmeans)
+emm_options(lmer.df = "S")
 
-joint_tests(m_inv.gaus, by = "condition") # Note that when df2 = Inf -> Chisq = F.ratio * df1
+joint_tests(m_inv.gaus2, by = "condition")
 
-em.int <- emmeans(m_inv.gaus, ~ congruency)
+em.int <- emmeans(m_inv.gaus2, ~ congruency)
 em.int
 
 contrast(em.int, method = "revpairwise")
@@ -155,8 +139,9 @@ contrast(em.int, method = "revpairwise")
 
 ## With link function ------------------------------
 
-# When we have a link function, we need to tell emmeans to back-transform the
-# response with `regrid = "response"`
+# When we have a link function, emmeans will (by default) extract estimates on
+# the link-scale. If we want emmeans to back-transform the response, we need to
+# set `regrid = "response"`.
 
 em.int2 <- emmeans(m_lnorm, ~ congruency, regrid = "response")
 em.int2
@@ -167,17 +152,4 @@ em.int
 contrast(em.int2, method = "revpairwise")
 
 
-
-
-
-
-
-
-# Exercise ----------------------------------------------------------------
-
-# Fit a Gaussian and a log-normal models with effects coding and compare the
-# resulting type-3 ANOVA tables to the one obtained with the inverse-Gaussian
-# model.
-# - Do the results differ? Do you conclusions change?
-# - Do the estimated means differ?
 

@@ -14,10 +14,10 @@ library(parameters)
 
 ## Data: 
 # 101 older adults were measured once a day, over a period of six days Each day
-# they preformed the same cognitive task The outcome -  processing speed
-# (average RT across trials) The purpose of the study: to assess individual
-# differences in short-term learning; individual trajectories for the change in
-# RT across the six occasions (see figure 3.4)
+# they preformed the same cognitive task The outcome - processing speed (average
+# RT across trials) The purpose of the study: to assess individual differences
+# in short-term learning; individual trajectories for the change in RT across
+# the six occasions (see figure 3.4)
 
 dataset <- read.csv("Example- Aging&Cognition -6 occasions.csv")
 
@@ -38,7 +38,6 @@ ggplot(dataset, aes(x = session, y = rt, color = factor(PersonID)))+
 rt ~ 1 + session + (1 + session | PersonID)
 
 # How do we build up to that?
-
 
 
 ## Intercept models -----------------------------------------------------------
@@ -80,7 +79,7 @@ model_parameters(model.r_intercepts, ci_method = "S")
 # - Are they nested? Yes.
 # - Are they fit using the same method? No - lm() uses OLS (equivalent to ML) 
 #   while lmer() uses REML.
-# - Should be refit lmer(REML = FALSE)? No - the models differ in their random 
+# - Should we refit lmer(REML = FALSE)? No - the models differ in their random 
 #   effects, so we NEED REML!
 
 
@@ -97,17 +96,11 @@ icc(model.r_intercepts)
 # Report: ICC=0.82, X2(1)=691.74, p<.001
 
 
-sigma(model.lm.empty)^2 # the variance in rt
-sigma(model.r_intercepts)^2 # the within-person variance is reduced!
-model_parameters(model.r_intercepts, ci_method = "S")
-# 82% of the original remaining variance was moved into the random effect
-# variance sigma2{a}, resulting in much less within-person error!
-# 448.20^2 + 211.90^2 = 244122.6
-
 # What about this?
 r2(model.r_intercepts)
 # In a random intercepts only model, the conditional R2 is the same as the ICC!
 # Why is the marginal R2=0?
+
 
 
 ## Building up the rt ~ session model ----------------------------------------
@@ -148,6 +141,7 @@ model.sess <- lmer(rt ~ session + (1 | PersonID),
                    data = dataset)
 model_parameters(model.sess, ci_method = "S")
 # (rt ~ session is the same as rt ~ 1 + session)
+
 
 # Q: The fixed effect for session is significant - how can we interpret this?
 
@@ -325,33 +319,19 @@ head(dataset2)
 
 # Don't forget to interpret your results as you go!
 
-## PART 1: 
-
-# First, build 2 models:
-  # Model A- empty model for predicting satisfaction.
-  #          What does the intercept estimate means?
-  # Model B- the same as the previous model- just set the intercept as random.
-  #          + compute the ICC. what does it means?
-  #          (The first tutorial's script may help you with this part!)
-# Second,
-  # Compare models A and B using the right indices (which)
-
-
-
-
-## PART 2: 
-
-# First, build 3 models:
-  # Model C- predicting satisfaction from gender (not controlling for
-  #          couple\ID)- a simple BP model
-  # Model D- predicting satisfaction from gender (while controlling for
-  #          couple\ID)- this one is a WP model. Even though we don't have
-  #          multiple obs. of the same person, we have two obs. for the same
-  #          couple! use this logic.
-  # Model E- predicting satisfaction from the duration*gender interaction (while
-  #          controlling for couple\ID)
-
-# Second,
-  # Compare the 3 models using the right indices (which?)
+# 0) Identify the random grouping variable, levels, DV, and predictors and their
+#    levels.
+# 1) build 2 models:
+# Model A: empty model for predicting satisfaction.
+#          ?. What does the intercept estimate mean?
+# Model B: Model A + random intercepts per COUPLE.
+#          ?. Compute the ICC. What does it means?
+#          (The first tutorial's script may help you with this part!)
+# 2) Compare models A and B using the right indices (which)
+# 3) Build 2 more models:
+# Model C: Model B + fixed effect for gender + fixed effect for duration.
+# Model D: Model C + an interaction between gender and duration.
+# 4) Compare model C to B and model D to C- each time using the right indices.
+# 5) gender is a level one predictor - can we add a random slope per couple?
 
 

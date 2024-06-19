@@ -30,7 +30,7 @@ dataset <- read.csv("Example_1.csv")
 head(dataset)
 glimpse(dataset)
 
-# preparing the DATA for MLM analysis:
+# Preparing the DATA for MLM analysis:
 # Converting data from wide to long\stacked format
 dataset.long <- dataset |>
   pivot_longer(cols = c(T1, T2), 
@@ -48,6 +48,7 @@ dataset.long <- dataset |>
 # (We could have also just converted these into factors)
 
 head(dataset.long)
+glimpse(dataset.long)
 
 
 ## Spaghetti plots -------------------------------------------------
@@ -56,12 +57,14 @@ head(dataset.long)
 # Spaghetti plots- change in outcome by time:
 p_spaghetti <- ggplot(dataset.long, aes(x = Time, y = outcome, color = factor(PersonID)))+
   # add a line for each ID but don't show use a legend
-  geom_line(show.legend = FALSE) + 
+  geom_point() + 
+  geom_line() + 
   # add the pattern of the mean slope (linear pattern)
   stat_smooth(method = "lm", se = FALSE, 
               color = "black", linewidth = 1) + 
   scale_x_continuous(breaks = c(0, 1)) + 
-  labs(x = "Time", y = "outcome") # use axis labels...
+  guides(color = "none")
+  
 p_spaghetti
 
 # split to groups:
@@ -173,8 +176,8 @@ emm_options(lmer.df = "satterthwaite") # setting the emm options to use
 
 # use emmeans's emtrends() function:
 TrendsByGroup <- emtrends(WPModel.con, # the model
-                          var = "Time", # the IV
-                          ~ group , # the moderator
+                          var = "Time", # the focal predictor
+                          ~ group, # the moderator
                           infer = TRUE)
 TrendsByGroup
 
@@ -182,6 +185,17 @@ TrendsByGroup
 # in the main model:
 model_parameters(WPModel.con, ci_method = "S")
 
+
+### Trying to add random slopes -------------------------
+
+# Since Time is a level 1 predictor, we might want to estimate the heterogeneity
+# of its effect by adding a random slope for it:
+lmer(outcome ~ Time * group + (1 + Time | PersonID),
+     data = dataset.long)
+# But we cannot - we don't have enough observations to identify both the level 1
+# variance _and_ the level 2 variance of the effect of time.
+# De-facto, the SD (Residual) parameter contains both.
+model_parameters(WPModel.con, effects = "random")
 
 
 ### Random effects ----------------------------------

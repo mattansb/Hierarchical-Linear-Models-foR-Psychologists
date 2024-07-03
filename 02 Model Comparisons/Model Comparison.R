@@ -139,8 +139,9 @@ r2(model.r_intercepts)
 
 model.sess <- lmer(rt ~ session + (1 | PersonID),
                    data = dataset)
-model_parameters(model.sess, ci_method = "S")
 # (rt ~ session is the same as rt ~ 1 + session)
+model_parameters(model.sess, ci_method = "S")
+
 
 
 # Q: The fixed effect for session is significant - how can we interpret this?
@@ -247,7 +248,7 @@ bayestestR::bayesfactor_models(model.sess, denominator = model.r_intercepts,
 
 anova(model.sess, model.r_sess_no_cov, refit = FALSE)
 
-bayestestR::bayesfactor_models(model.sess, denominator = model.r_sess_no_cov,
+bayestestR::bayesfactor_models(model.r_sess_no_cov, denominator = model.sess,
                                estimator = "REML") 
 
 #>>> conclusion- the random slope model is better!

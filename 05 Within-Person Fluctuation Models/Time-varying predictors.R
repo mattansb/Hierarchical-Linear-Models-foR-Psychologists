@@ -126,7 +126,7 @@ lmer(mood ~ 1 + (1 | PersonID), data = data) |>
 # We can also:
 check_heterogeneity_bias(data, 
                          select = c("mood", "baseage"), 
-                         group = "PersonID")
+                         by = "PersonID")
 # Indeed, our time varying predictor has Possible heterogeneity bias 
 
 # Visually:
@@ -146,26 +146,28 @@ data |>
 data |> 
   group_by(PersonID) |>
   mutate(
-    mood_PM = mean(mood,na.rm = TRUE), # person mean
+    mood_PM = mean(mood, na.rm = TRUE), # person mean
     mood_WP = mood - mood_PM # person mean centering!
   ) |> 
-  select(PersonID, mood, mood_PM, mood_WP)
+  select(PersonID, mood, mood_PM, mood_WP) |> 
+  head(n = 15)
 
 
 # We can also do this with the demean() function:
 ?demean 
 
 data <- data |> 
-  mutate(
-    demean(pick(mood, PersonID),
-           select = "mood", group = "PersonID", 
-           suffix_groupmean = "_PM",
-           suffix_demean = "_WP")  
-  )
+  demean(select = "mood", 
+         by = "PersonID", 
+         
+         suffix_groupmean = "_PM",
+         suffix_demean = "_WP") |> 
+  # add to the rest of the data
+  bind_cols(data)
 
 data |> 
   select(PersonID, mood, mood_PM, mood_WP) |> 
-  head(data, n = 10)
+  head(data, n = 15)
 # mood_WP is centered at a variable (not a constant): person's usual level of
 # daily negative mood, as represented by each person's mean across occasions.
 

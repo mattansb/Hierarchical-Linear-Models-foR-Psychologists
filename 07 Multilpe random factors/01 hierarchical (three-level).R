@@ -1,3 +1,4 @@
+
 library(dplyr)
 library(lmerTest)
 library(performance)
@@ -31,7 +32,7 @@ head(egsingle)
 m0 <- lmer(math ~ 1 + (1 | childid:schoolid) + (1 | schoolid),
            data = egsingle)
 
-RE <- ranef(m0)
+RE <- ranef(m0) # U values
 names(RE)
 
 icc(m0) # variance explained by child and school.
@@ -53,14 +54,16 @@ ggplot(egsingle, aes(grade, math)) +
               method = "lm", se = FALSE,
               alpha = 0.2) +
   stat_smooth(method = "lm", se = FALSE, color = "black") +
-  labs(title = "Trend per child:school")
+  labs(title = "Trend per child:school") + 
+  lims(y = c(-5, 5))
 
 ggplot(egsingle, aes(grade, math)) +
   stat_smooth(aes(group = schoolid), 
               method = "lm", se = FALSE,
               alpha = 0.2) +
   stat_smooth(method = "lm", se = FALSE, color = "black") +
-  labs(title = "Trend per school")
+  labs(title = "Trend per school") + 
+  lims(y = c(-5, 5))
 
 
 m1 <- lmer(math ~ grade + (1 | childid:schoolid) + (1 | schoolid),
@@ -88,6 +91,7 @@ anova(m1, m1b, refit = FALSE)
 # We can see that children do differ in their linear growth
 
 # We can compute the 95% PI:
+fixef(m1b)
 VarCorr(m1b)
 0.77 + c(-1, 1) * 1.96 * 0.12191
 # 95% of children improve year to year by between 0.52 to 1.01 points.
@@ -99,7 +103,8 @@ VarCorr(m1b)
 
 # Now let's add the random slope for schools:
 m1c <- lmer(math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
-            data = egsingle)
+            data = egsingle,
+            control = lmerControl("bobyqa"))
 
 VarCorr(m1c)
 # We can see that the child-level variance in the growth slope has reduced:
@@ -109,7 +114,8 @@ VarCorr(m1c)
 
 # Here to we can compute 95% PIs between the schools:
 0.77 + c(-1, 1) * 1.96 * 0.114114
-# 95% of schools show a growth between 0.55 and 0.99 from year to year.
+# 95% of schools show an average growth between 0.55 and 0.99 from year to year.
+
 
 
 # Q: Interpret the correlation between the school-level random effects.
@@ -127,13 +133,15 @@ ggplot(egsingle, aes(grade, math)) +
               method = "lm", se = FALSE,
               alpha = 0.2) +
   stat_smooth(method = "lm", se = FALSE, color = "black") +
-  labs(title = "Trend per school")
+  labs(title = "Trend per school") + 
+  lims(y = c(-5, 5))
 # From the plot, we can see that schools with a lower income student body
 # have lower math grades. But are the slopes also different?
 
 
 m2 <- lmer(math ~ grade * lowinc + (grade | childid:schoolid) + (grade | schoolid),
-           data = egsingle)
+           data = egsingle,
+           control = lmerControl("bobyqa"))
 anova(m2, m1c)
 # The models are different - but this is the main effect and the interaction!
 
@@ -157,8 +165,11 @@ emtrends(m2, ~ lowinc, var = "grade",
 # explained by lowinc (pseudo-R2).
 VarCorr(m1c)
 VarCorr(m2)
-1 - (0.108619 / 0.114114)^2
+1 - (0.108592 / 0.114115)^2
 # 9% of the variance is explained by lowinc.
+
+
+# Q: Can we add a random slope for lowinc?
 
 
 # Exercise ----------------------------------------------------------------

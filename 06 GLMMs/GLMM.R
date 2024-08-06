@@ -41,7 +41,7 @@ ggplot(SFON_data, aes(weberFr, Attend)) +
   stat_summary(aes(group = ID), geom = "point")
 # Looks like a negative trend - how can we model this?
 
-# Learn more aboug GLMs here:
+# Learn more about GLMs here:
 # https://github.com/mattansb/Practical-Applications-in-R-for-Psychologists/tree/master/08%20generalized%20linear%20models
 
 

@@ -3,7 +3,9 @@
 # Load packages:
 library(dplyr)
 library(ggplot2)
+
 library(lmerTest)
+
 library(parameters)
 library(performance)
 
@@ -75,7 +77,7 @@ data |>
 ggplot(data, aes(session, rt)) + 
   geom_line(aes(colour = factor(PersonID)), 
             show.legend = FALSE) + 
-  stat_smooth(se = FALSE, colour = "black", size = 1) + 
+  stat_smooth(se = FALSE, colour = "black", linewidth = 1) + 
   labs(y = "reaction time")
   
 # Seems linear? Maybe not...
@@ -223,11 +225,12 @@ M2b <- lmer(rt ~ time + (time | PersonID),
             data = data)
 model_parameters(M2b, ci_method = "S")
 
+View(coef(M2b)[[1]])
 
 # To test the significance of the addition of the random linear time slope 
 # variance (and its covariance with the random intercept), we can do a deviance 
 # difference test against the fixed linear time:
-anova(M2b, M2a)
+anova(M2b, M2a, refit = FALSE)
 
 
 
@@ -301,44 +304,27 @@ anova(M3a, M2b)
 M3b <- lmer(rt ~ poly(time, 2, raw = TRUE) +
               (poly(time, 2, raw = TRUE) | PersonID),
             data = data)
+# We get a convergence warning! 
+# This means the model failed to properly estimate its parameters - The model's
+# estimates cannot be trusted!
+?allFit
+
+
+# Let's try and fix that by using a different internal optimizer function:
+M3b <- lmer(rt ~ poly(time, 2, raw = TRUE) +
+              (poly(time, 2, raw = TRUE) | PersonID),
+            control = lmerControl(optimizer = "bobyqa"),
+            data = data)
+# Yay!
+
 model_parameters(M3b, ci_method = "S")
 VarCorr(M3b)
-anova(M3b, M3a)
-
+anova(M3b, M3a, refit = FALSE)
 ## Models 2b & 3b results are the same as in the book - go over this tutorial
 ## with the book.
 
-# Model M3b seems better than M3a ****BUT**** we got a warning:
-# Warning message:
-# In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
-# Model failed to converge with max|grad| = 0.0447192 (tol = 0.002, component 1)
-
-# In this case of problems in convergence of the model, we want to be very careful.
-# It might be that a model with this warning (and even reasonable) will provide better fit.
-# But over-fitting is a big no-no!
-
-# ----> that means we used too many parameters\ overfitted the data.
-#       Actually, we jumped from 7 parameters in M3a to 10 parameters in M3b-  
-#       We have added the (1) quadratic slope variance
-#                         (2) quadratic slope cov with the linear slope
-#                         (2) quadratic slope cov with the intercept
-
-# I.E., this was not a truly sequential modelling.
-#       we may inspect our random effects:
-VarCorr(M3b) # it seems that quadratic slope cov with the linear slope are highly correlated!
 
 
-# Lets' try modeling without covariance with quadratic time effect: 
-M3bNew <- lmer(rt ~ poly(time, 2, raw = TRUE) +
-                 (time | PersonID) + (0 + I(time ^ 2) | PersonID),
-               data = data)
-# Note the singularity warning. We will discuss this later in class.
-
-# inspecting the random effects:
-VarCorr(M3bNew)
-# the quadratic slope variance is ~0! It seems there aren't any differences in
-# the quadratic slope.
-# We will talk about this in class.
 
 
 
@@ -362,7 +348,7 @@ emmeans(M3b, ~ time,
 ggemmeans(M3b, c("time [all]")) |> plot()
 
 # simple slopes (instantaneous linear rate of change) at each time point
-emtrends(M3b, ~ time, var = 'time', max.degree = 1, 
+emtrends(M3b, var = 'time', ~ time, max.degree = 1, 
          at = list(time = 0:5), # slopes at each time!
          infer = TRUE) # get t-vals and confint
 
@@ -371,4 +357,6 @@ emtrends(M3b, ~ time, var = 'time', max.degree = 1,
 # session 5 it is nonsignificantly negative (and is nonsignificantly positive at
 # session 6). Thus, the improvement predicted by the quadratic model appears to
 # ?shut off? after session 4.
+
+
 

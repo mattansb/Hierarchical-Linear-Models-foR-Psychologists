@@ -155,8 +155,9 @@ model_parameters(WPCondition, ci_method = "S")
 # We can see that there is a large [-414.06,  -23.03] interference effect.
 
 
-# This function shows us the random (co)variance components:
-VarCorr(WPCondition)
+fixef(WPCondition) # the "gamma"s
+ranef(WPCondition) # the "u"s
+VarCorr(WPCondition) # This function shows us the random (co)variance components
 
 # The interference effect (ConditionIncong) is related to the intercept
 # (r=-0.72). This means that individuals who are slower in the neutral
@@ -371,7 +372,6 @@ CLI_model <- lmer(RT ~ inatten_c * Condition + (Condition | ID),
 # gamma11 and gamma21 are the interaction estimates
 
 model_parameters(CLI_model, ci_method = "S", effects = "fixed") # dummy var interactions not sig
-anova(CLI_model, type = 2) # anova table - the omnibus test (F) for the interaction is not sig
 
 # comparing with model with no int.:
 

@@ -1,3 +1,4 @@
+
 library(dplyr)
 library(lmerTest)
 library(performance)
@@ -66,8 +67,7 @@ VarCorr(m1)
 # Accounting for ~0% of the variance in the time it take to respond to them.
 
 anova(m1, m0) 
-# However, this effect if non-sig, and both BIC and AIC support the simpler
-# model.
+# This effect if non-sig, and both BIC and AIC support the simpler model.
 
 
 ### Random effect --------
@@ -81,7 +81,7 @@ anova(m1, m1r, refit = FALSE)
 # Seems like there *isn't* much difference between subjects in their
 # order-effects.
 
-model_parameters(m1r)
+model_parameters(m1r, ci_method = "S")
 VarCorr(m1r)
 # We can see that ordered stimuli are responded to faster, but there results are
 # not significant.
@@ -96,7 +96,7 @@ m2 <- lmer(rt ~ Condition + Sex + (Condition | Subject) + (1 | Stim),
            data = order_data_correct)
 anova(m2, m1r) # Oof... rough.
 
-summary(m2) # Here the effect of sex is just significant
+model_parameters(m2, ci_method = "S") # Here the effect of sex is just significant
 # Males showing slower responses.
 
 
@@ -142,7 +142,8 @@ coef(m2r)[["Stim"]] |>
 
 # Exercise ----------------------------------------------------------------
 
-# Remove the random effect for Stim and test the effect of condition.
+# Remove the random effects (random intercept and slopes) for Stim and test the
+# effect of condition.
 # 1. How does this differ from what we found above?
 # 2. What can we learn from this difference?
 

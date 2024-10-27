@@ -403,7 +403,7 @@ model_parameters(mod_cli, ci_method = "S", effects = "fixed",
 
 
 plot_predictions(mod_cli, condition = c("inatten_c", "Condition"),
-                 re.form = NA) + 
+                 re.form = NA, vcov = "satterthwaite") + 
   scale_color_brewer(breaks = c("Cong", "Neutral", "Incong"),
                      labels = c("Congruent", "Neutral", "Incongruent"),
                      type = "qual", 
@@ -415,7 +415,7 @@ plot_predictions(mod_cli, condition = c("inatten_c", "Condition"),
 
 
 plot_predictions(mod_cli, condition = list("Condition", inatten_c = mean_sd),
-                 re.form = NA) + 
+                 re.form = NA, vcov = "satterthwaite") + 
   scale_color_brewer("Inattention Symptoms\n[centered]", type = "div",
                      labels = c("-SD", "Mean", "+SD")) + 
   scale_y_continuous(labels = scales::label_comma()) + 
@@ -431,7 +431,7 @@ plot_predictions(mod_cli, condition = list("Condition", inatten_c = mean_sd),
 #### Simple slopes (Condition as moderator) ------------
 avg_slopes(mod_cli, variables = "inatten_c", by = "Condition",
            # Set this to indicate we're interested in the fixed effects!
-           re.form = NA) 
+           re.form = NA, vcov = "satterthwaite") 
 # The (n.s.) trends for the between person effects are:
 # - In Neutral and Cong, subjects with *more* inattentive symptoms are slower.
 # - In the Incong condition, they are slower.
@@ -445,7 +445,7 @@ avg_comparisons(mod_cli, variables = list("Condition" =  "reference"), by = "ina
                 # We want to look as specific values of inattention:
                 newdata = datagrid(inatten_c = mean_sd),
                 # Set this to indicate we're interested in the fixed effects!
-                re.form = NA)
+                re.form = NA, vcov = "satterthwaite")
 # For low inatten, interference effect is weak.
 # For mean inatten, interference effect is larger.
 # For high inatten, interference effect is largest.

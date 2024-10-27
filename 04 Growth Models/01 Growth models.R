@@ -361,18 +361,18 @@ anova(mod_rndm.poly2, mod_fixed.poly2, refit = FALSE)
 library(marginaleffects)
 
 plot_predictions(mod_rndm.poly2, condition = "time",
-                 re.form = NA) + 
+                 re.form = NA, vcov = "satterthwaite") + 
   theme_classic() + 
   scale_y_continuous("Reaction Time", labels = scales::label_comma())
 
 
 # Simple intercepts in each time point (with CI)
 avg_predictions(mod_rndm.poly2, variables = "time",
-                re.form = NA)
+                re.form = NA, vcov = "satterthwaite")
 
 # Simple slopes (instantaneous linear rate of change) at each time point
 avg_slopes(mod_rndm.poly2, variables = "time", by = "time",
-           re.form = NA)
+           re.form = NA, vcov = "satterthwaite")
 
 
 # The linear rate of change is significantly negative through session 4, but by

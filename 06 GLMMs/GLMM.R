@@ -18,11 +18,11 @@ SFON_data <- haven::read_sav("SFON.sav") |>
 
 # This data was collected from 46 children aged 3-5. 
 nlevels(SFON_data$ID)
-# They were given two versions (Truck/Bird) of the same task (Task): In each
-# version, they played with a toy together with an experimenter. During each of
-# "games", their behavior was coded as either showing some attention to the
-# quantitative properties of the game (counting, saying numbers, etc.) or not
-# (Attend). Additionally, the children ability to discriminate between
+# They were given two vlidated versions (Truck/Bird) of the same task (Task): In
+# each version, they played with a toy together with an experimenter. During
+# each of "games", their behavior was coded as either showing some attention to
+# the quantitative properties of the game (counting, saying numbers, etc.) or
+# not (Attend). Additionally, the children ability to discriminate between
 # quantities was measured (weberFr).
 
 head(SFON_data)
@@ -76,8 +76,12 @@ model_parameters(mod_rndm.intr, exponentiate = TRUE)
 mean(SFON_data$Attend)
 
 # We can get the unbiased estimate with {marginaleffects}:
-avg_predictions(mod_rndm.intr, re.form = NA) # generalized means
-avg_predictions(mod_rndm.intr, re.form = NULL) # means
+avg_predictions(mod_rndm.intr, 
+                newdata = datagrid(ID = NA),
+                re.form = NA) # "generalized" means
+avg_predictions(mod_rndm.intr, 
+                newdata = datagrid(ID = unique), # We *want* the random effects
+                re.form = NULL) # means
 
 # Does this matter? Depends on what your doing. The biased estimates are
 # sometimes called *generalized means*, and those are sometimes fine. See:
@@ -123,7 +127,8 @@ plot_predictions(mod_age, condition = "Age", re.form = NULL) +
                      oob = scales::oob_squish) + 
   theme_bw()
 # The average marginal slopes are the average of the linear slopes across all values of Age.
-avg_slopes(mod_age, variables = "Age", re.form = NULL)
+avg_slopes(mod_age, variables = "Age", 
+           re.form = NULL)
 # Age had a positive effect on attending, with the probability of attending
 # increasing on average of each year of age by 45 percentage points, 95% CI [19,
 # 72], z = 3.36, p < .001.
@@ -140,4 +145,6 @@ avg_slopes(mod_age, variables = "Age", re.form = NULL)
 # - What what is the effect of weberFr? Is it in the expected direction?
 #   - Use {marginaleffects} to plot the effect.
 #   - Compute both OR and AME (average marginal effects)
+# - Should we include "Task" as a random grouping variable? Why might we want 
+#   to, and why might we not?
 

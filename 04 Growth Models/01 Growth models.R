@@ -366,18 +366,15 @@ plot_predictions(mod_rndm.poly2, condition = "time",
   scale_y_continuous("Reaction Time", labels = scales::label_comma())
 
 
-(time_grid <- datagrid(PersonID = NA, time = 0:5,
-                       model = mod_rndm.poly2))
-
 # Simple intercepts in each time point (with CI)
 predictions(mod_rndm.poly2,
-            re.form = NA, vcov = "satterthwaite",
-            newdata = time_grid)
+            newdata = datagrid(PersonID = NA, time = 0:5),
+            re.form = NA, vcov = "satterthwaite")
 
 # Simple slopes (instantaneous linear rate of change) at each time point
 slopes(mod_rndm.poly2, variables = "time", by = "time",
-       re.form = NA, vcov = "satterthwaite",
-       newdata = time_grid)
+       newdata = datagrid(PersonID = NA, time = 0:5),
+       re.form = NA, vcov = "satterthwaite")
 
 
 # The linear rate of change is significantly negative through session 4, but by

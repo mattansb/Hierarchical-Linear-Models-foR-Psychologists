@@ -429,9 +429,20 @@ plot_predictions(mod_cli, condition = list("Condition", inatten_c = mean_sd),
 
 
 #### Simple slopes (Condition as moderator) ------------
+
 avg_slopes(mod_cli, variables = "inatten_c", by = "Condition",
            # Set this to indicate we're interested in the fixed effects!
-           re.form = NA, vcov = "satterthwaite") 
+           re.form = NA) 
+
+# Currently, {marginaleffects} does not support Satterthwaite dfs for *average*
+# estimates. But we can get estimates at selected theoretical observations but
+# setting the newdata=datagrid() argument. 
+# (In this case we get the same estimates.)
+slopes(mod_cli, variables = "inatten_c", by = "Condition",
+       # Set this to indicate we're interested in the fixed effects!
+       re.form = NA, vcov = "satterthwaite",
+       newdata = datagrid(ID = NA, Condition = unique)) 
+
 # The (n.s.) trends for the between person effects are:
 # - In Neutral and Cong, subjects with *more* inattentive symptoms are slower.
 # - In the Incong condition, they are slower.
@@ -441,11 +452,11 @@ avg_slopes(mod_cli, variables = "inatten_c", by = "Condition",
 
 #### Simple contrasts (inatten as moderator) -----------
 
-avg_comparisons(mod_cli, variables = list("Condition" =  "reference"), by = "inatten_c",
-                # We want to look as specific values of inattention:
-                newdata = datagrid(inatten_c = mean_sd),
-                # Set this to indicate we're interested in the fixed effects!
-                re.form = NA, vcov = "satterthwaite")
+comparisons(mod_cli, variables = list("Condition" =  "reference"), by = "inatten_c",
+            # We want to look as specific values of inattention:
+            newdata = datagrid(ID = NA, inatten_c = mean_sd),
+            # Set this to indicate we're interested in the fixed effects!
+            re.form = NA, vcov = "satterthwaite")
 # For low inatten, interference effect is weak.
 # For mean inatten, interference effect is larger.
 # For high inatten, interference effect is largest.

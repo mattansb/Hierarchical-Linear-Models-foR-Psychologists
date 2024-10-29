@@ -86,8 +86,14 @@ dataset |>
 ## Spaghetti Plots helps to consider the pattern of the data:
 
 ## Spaghetti plot: 
-ggplot(dataset, aes(session, rt, color = factor(PersonID)))+
-  geom_line(show.legend = FALSE) +   
+ggplot(dataset, aes(session, rt))+
+  stat_smooth(aes(color = factor(PersonID)), 
+              se = FALSE,
+              alpha = 0.9, show.legend = FALSE) +   
+  scale_color_manual(
+    values = sample(c("#c9190e", "#ccba82", "#daca89", "#d2c291", "#c8b04f"), 
+                    size = 101, replace = TRUE)
+  ) + 
   stat_smooth(se = FALSE, 
               color = "black", linewidth = 2) + 
   scale_x_continuous("Session", breaks = 1:6) + 
@@ -95,6 +101,8 @@ ggplot(dataset, aes(session, rt, color = factor(PersonID)))+
   theme_bw() + 
   labs(caption = glue::glue("Data from {N} people, over 6 sessions.",
                             N = nlevels(factor(dataset$PersonID))))
+
+
   
 # Seems linear? Maybe not...
 

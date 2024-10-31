@@ -403,7 +403,7 @@ model_parameters(mod_cli, ci_method = "S", effects = "fixed",
 
 
 plot_predictions(mod_cli, condition = c("inatten_c", "Condition"),
-                 re.form = NA) + 
+                 re.form = NA, vcov = "satterthwaite") + 
   scale_color_brewer(breaks = c("Cong", "Neutral", "Incong"),
                      labels = c("Congruent", "Neutral", "Incongruent"),
                      type = "qual", 
@@ -415,8 +415,9 @@ plot_predictions(mod_cli, condition = c("inatten_c", "Condition"),
 
 
 plot_predictions(mod_cli, condition = list("Condition", inatten_c = mean_sd),
-                 re.form = NA) + 
-  scale_color_brewer("Inattention Symptoms\n[centered]", type = "div",
+                 re.form = NA, vcov = "satterthwaite") + 
+  scale_color_manual("Inattention Symptoms\n[centered]", 
+                     values = c("#28d0d7", "#8924db", "#D72F28"),
                      labels = c("-SD", "Mean", "+SD")) + 
   scale_y_continuous(labels = scales::label_comma()) + 
   scale_x_discrete(limits = c("Cong", "Neutral", "Incong"),
@@ -429,9 +430,30 @@ plot_predictions(mod_cli, condition = list("Condition", inatten_c = mean_sd),
 
 
 #### Simple slopes (Condition as moderator) ------------
-avg_slopes(mod_cli, variables = "inatten_c", by = "Condition",
-           # Set this to indicate we're interested in the fixed effects!
-           re.form = NA) 
+
+# The {marginaleffects} is very powerful and flexible. It has many good defaults, but we will be verbose here
+# so as to better understand what's going on.
+# To get the estimate(s) of intrest, we need to supply*:
+# - The name of the focal variable (variables=)
+# - Any conditioning variable(s) (by=)
+# - A data grid indicating for which "observations" we want to compute our 
+#   estimates (newdata=)
+# Additionally, there are other arguments the control how the estimates are
+# computed.
+
+# We can create a data grid with the datagrid() function. For example:
+datagrid(
+  model = mod_cli, # Based on what data?
+  
+  ID = NA, # set to NA to "ignore" the random effects = get population effects
+  Condition = unique # all unique levels
+)
+
+
+slopes(mod_cli, variables = "inatten_c", by = "Condition",
+       newdata = datagrid(ID = NA, Condition = unique),
+       # Set this to indicate we're interested in the fixed effects!
+       re.form = NA, vcov = "satterthwaite") 
 # The (n.s.) trends for the between person effects are:
 # - In Neutral and Cong, subjects with *more* inattentive symptoms are slower.
 # - In the Incong condition, they are slower.
@@ -441,11 +463,10 @@ avg_slopes(mod_cli, variables = "inatten_c", by = "Condition",
 
 #### Simple contrasts (inatten as moderator) -----------
 
-avg_comparisons(mod_cli, variables = list("Condition" =  "reference"), by = "inatten_c",
-                # We want to look as specific values of inattention:
-                newdata = datagrid(inatten_c = mean_sd),
-                # Set this to indicate we're interested in the fixed effects!
-                re.form = NA)
+comparisons(mod_cli, variables = list("Condition" =  "reference"), by = "inatten_c",
+            newdata = datagrid(ID = NA, inatten_c = mean_sd),
+            # Set this to indicate we're interested in the fixed effects!
+            re.form = NA, vcov = "satterthwaite")
 # For low inatten, interference effect is weak.
 # For mean inatten, interference effect is larger.
 # For high inatten, interference effect is largest.
@@ -454,6 +475,9 @@ avg_comparisons(mod_cli, variables = list("Condition" =  "reference"), by = "ina
 
 
 
+
+# Again, {marginaleffect} is *very* flexible, and I highly recommend reading the
+# online book: https://marginaleffects.com/
 
 
 

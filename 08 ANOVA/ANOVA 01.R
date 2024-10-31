@@ -130,16 +130,6 @@ as.data.frame(em.int) |>
 
 
 
-### With link function ------------------------------
-
-# When we have a link function, emmeans will (by default) extract estimates on
-# the link-scale. If we want emmeans to back-transform the response, we need to
-# set `regrid = "response"`.
-
-emmeans(mod2, ~ treatment, regrid = "response")
-# Etc...
-
-
 
 # Exercise ----------------------------------------------------------------
 

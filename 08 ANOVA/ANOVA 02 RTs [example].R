@@ -70,7 +70,8 @@ mod_lnorm <- lmer(log(rt) ~ condition * congruency + (condition * congruency | p
 (plot(check_predictions(mod_inv.gaus)) + ggtitle("Inverse Gaussian")) / 
   (plot(check_predictions(mod_gauss)) + ggtitle("Gaussian (Normal)")) + 
   (plot(check_predictions(mod_lnorm)) + ggtitle("log-Normal")) + 
-  plot_layout(guides = "collect")
+  plot_layout(guides = "collect") &
+  coord_cartesian(xlim = c(0, 2))
 # We can see that the inverse-Gaussian model fits better than the Gaussian
 # model. Not perfect, but better, and the log-normal model fits best.
 # However, the log-normal uses a transformed response, making interpretation of

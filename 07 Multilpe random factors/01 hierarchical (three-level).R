@@ -212,9 +212,9 @@ model_parameters(mod_lowinc, ci_method = "S")
 # - The interaction term is significant and negative.
 
 # We can probe the interaction:
-avg_slopes(mod_lowinc, variables = "grade", by = "lowinc",
-           newdata = datagrid(lowinc = c(0, 50, 100)),
-           re.form = NA)
+slopes(mod_lowinc, variables = "grade", by = "lowinc",
+       newdata = datagrid(childid = NA, schoolid = NA, lowinc = c(0, 50, 100)),
+       re.form = NA, vcov = "satterthwaite")
 # We can see that across different %s of lower-income students, the growth model
 # is positive and of very similar magnitude.
 

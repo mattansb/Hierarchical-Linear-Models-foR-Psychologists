@@ -225,13 +225,14 @@ p_spaghetti + facet_grid(cols = vars(group)) # What can we see here?
 
 
 
-# This model can also be fix with an rmANOVA - and it will be equivalent!
-afex::aov_ez(id = "PersonID", dv = "outcome", 
+# This model can also be fit with an rmANOVA - and it will be equivalent!
+afex::aov_ez(id = "PersonID", dv = "outcome",
              data = dataset_long,
              between = "group", within = "Time")
 # Notice that the df and p value for the interaction are nearly identical!
 # (They are NOT the same for Time and group - in the ANOVA they are main effect,
-# in the LMM they are simple effects.)
+# in the LMM they are simple effects. We will discuss ANOVA tables for LMMs later
+# in the semester.)
 
 
 

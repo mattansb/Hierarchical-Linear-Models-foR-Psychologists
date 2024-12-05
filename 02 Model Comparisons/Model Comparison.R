@@ -160,7 +160,7 @@ r2(mod_rndm.intr)
 #
 # Level-2 equations: 
 #     b_0j = gamma_00 + U_0j   (same as before )
-#     b_1i = gamma_10
+#     b_1j = gamma_10
 #
 # Composite: 
 #     RT_ji =  (gamma_00 + U_0j) + gamma_10 * session_ij + eji 
@@ -190,7 +190,7 @@ model_parameters(mod_fixd.sssn, ci_method = "S")
 #
 # Level-2 equations: 
 #     b_0j = gamma_00 + U_0j   (same as before )
-#     b_1i = gamma_10 + U_1j
+#     b_1j = gamma_10 + U_1j
 #
 # Composite: 
 #     RT_ji =  (gamma_00 + U_0j) + (gamma_10 + U_1j) * session_ij + eji 
@@ -289,7 +289,7 @@ bayestestR::bayesfactor_models(mod_rndm.sssn, denominator = mod_fixd.sssn,
 ### compare: mod_rndm.sssn VS mod_full:
 
 # - Are they nested? 
-#   Yes (model.r_sess_no_cov is nested within model.maximal)
+#   Yes (mod_rndm.sssn is nested within mod_full)
 # - Are they fit using the same method? 
 #   Yes - REML, and they differ on random effects, so no need to refit
 

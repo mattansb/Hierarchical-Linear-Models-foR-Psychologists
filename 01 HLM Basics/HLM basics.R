@@ -37,7 +37,7 @@ head(dataset)
 # columns for the outcome and a column for the group.
 # To model this data in an HLM, we need to convert it to the long format.
 
-dataset_long <- dataset |>
+dataset_long <- dataset |> 
   # Converting data from wide to long\stacked format
   pivot_longer(cols = c(outcome1, outcome2), 
                names_to = "Time", 
@@ -269,11 +269,12 @@ model_parameters(mod_max.mixed, ci_method = "S")
 
 
 # This model's notation would be: 
-# outcome_ij = b_0j + b_1 * Time + b_2 * group + b_3 * Time * group + e_ij
-#       b_0j = gamma_00 + U_0
+# outcome_ij = b_0j + b_1 * Time + e_ij
+#       b_0j = gamma_00 + gamma_01 * group + U_0
+#       b_1j = gamma_10 + gamma_11 * group
 
 # We can extract each of these parts:
-fixef(mod_max.mixed)     # gamma_00, b_1, b_2, b_3
+fixef(mod_max.mixed)     # gamma
 ranef(mod_max.mixed)     # U_0
 coef(mod_max.mixed)      # b_0j (but also all the other fixed values)
 residuals(mod_max.mixed) # e_ij

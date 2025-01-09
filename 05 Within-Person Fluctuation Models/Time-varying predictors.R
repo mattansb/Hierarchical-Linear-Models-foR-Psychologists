@@ -42,7 +42,7 @@ head(dataset, n = 20)
 #   How can you tell?
 
 dataset |> 
-  filter(PersonID == "102")
+  filter(PersonID == "105")
 
 
 # We will start our example for predicting daily physical symptoms by first
@@ -109,11 +109,6 @@ lmer(mood ~ 1 + (1 | PersonID), data = dataset) |>
 # -> Alternatively, this means it has only within-person variation, and thus the 
 #    time-varying predictor could only show a within-person effect.
 
-# We can also:
-check_heterogeneity_bias(dataset, 
-                         select = c("mood", "baseage"), 
-                         by = "PersonID")
-# Indeed, our time varying predictor has Possible heterogeneity bias 
 
 # Visually:
 dataset |> 
@@ -207,7 +202,7 @@ icc(mod_rndm.intr)
 # RANDOM: intercept
   
 # Level 1: 
-#     symptoms_ji = b_0j +b_1j * mood_WP_i + e_ij
+#     symptoms_ji = b_0j + b_1j * mood_WP_i + e_ij
 #
 # Level 2: 
 #     b_0j = gamma_00 + gamma_01 * mood_PM_c_j + U_0j

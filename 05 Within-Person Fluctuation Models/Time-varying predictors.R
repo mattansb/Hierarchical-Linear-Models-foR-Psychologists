@@ -341,13 +341,12 @@ head(dataset2)
 # The outcome variable: 
 #     Risky (12-18) - a sum of 10 items indexing frequency of risky behavior
 #     (e.g., smoking, drinking, shoplifting, skipping school).
-# Time-invariant predictor:
-#     Attitude12 - an index of their mothers' attitudes about smoking and
-#     drinking (measured only in the first time point).
-# Time-variant predictors: 
-#     Age (12-18)- the exact age in each time point. 
-#     Monitor (12-18)- Monitoring was measured as the mean
-#     across 10 items on a 1 to 5 scale.
+# Predictors:
+#     - Attitude12 - an index of their mothers' attitudes about smoking and
+#       drinking (measured only in the first time point).
+#     - Age (12-18) - the exact age at each time point. 
+#     - Monitor (12-18)- Monitoring was measured as the mean across 10 items on
+#       a 1 to 5 scale.
 
 
 # Creating a to long (stacked) format of the data:
@@ -355,16 +354,16 @@ dataset2.long <- dataset2 |>
   pivot_longer(
     cols = starts_with(c("Age", "Risky", "Monitor")),
     names_pattern = "(.*)([0-9][0-9])",
-    names_to = c(".value", "Age_rounded")
+    names_to = c(".value", "Age_rounded"), 
+    names_transform = list(Age_rounded = as.numeric)
   ) |> 
   mutate(
-    # we centered age to 18:
-    YearsPre18 = Age - 18
+    PersonID = factor(PersonID),
+    YearsPre18 = Age - 18 # we centered age to 18
   )
 head(dataset2.long)
 
 
-## Your exercise:
 # We are interested in the effect of age and monitoring on on Risky behavior.
 # 1. For each predictor, think if it should be treated as a time varying
 #    predictor.

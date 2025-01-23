@@ -135,6 +135,11 @@ mod_grade <- lmer(math ~ grade + (1 | childid:schoolid) + (1 | schoolid),
 anova(mod_grade, mod_rndm.intr)
 # Not surprisingly, the growth model is supported.
 
+# Which variance component is explained by this linear growth?
+# How would be compute the relevant pseudo-R2?
+VarCorr(mod_rndm.intr)
+VarCorr(mod_grade)
+
 
 model_parameters(mod_grade, ci_method = "S")
 # There is a positive linear trend such that the IRT improves by 0.77 points 

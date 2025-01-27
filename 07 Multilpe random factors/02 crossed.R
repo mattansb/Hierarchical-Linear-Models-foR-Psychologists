@@ -68,6 +68,7 @@ order_data_correct |>
 mod_rndm.intr <- lmer(rt ~ 1 + (1 | Subject) + (1 | Stim),
                       data = order_data_correct)
 
+icc(mod_rndm.intr)
 icc(mod_rndm.intr, by_group = TRUE) # ICC for each group
 # We can see that there is considerable variance both between Subjects and
 # between Stimuli! That means that not only do subjects differ in how fast they
@@ -122,7 +123,7 @@ model_parameters(mod_rndm.cond, ci_method = "S")
 #    sex. Plot your results.
 # 3. Go back to the mod_rndm.cond mode, and remove the random intercept for
 #    stim. How has this affected the significance of the effect of condition?
-#    What can we learn from this difference?
+#    What can we learn from this?
 
 
 

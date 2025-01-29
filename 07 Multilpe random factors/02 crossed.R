@@ -11,20 +11,27 @@ library(parameters)
 
 order_data <- read.csv("order.csv")
 head(order_data)
-# The task: subjects were presented with 3 circles filled with of dots. They had
-# to decide if all of circles had the same number of dots in them, or not. (See
-# task-stimuli.png)
+# The task: subjects were presented with 3 circles filled with of dots. 
+# They had to decide if *all* of circles had the same number of dots in them, or
+# if at least one had a different number of dots (See task-stimuli.png)
+
 
 
 order_data_correct <- order_data |> 
-  as_tibble() |> 
+  # Drop subjects that didn't understand the task
+  group_by(Subject) |> 
+  filter(mean(acc[Condition == "partial rep"]) > 0.6) |>
   # Keep only correct trials
   filter(acc == 1) |> 
   select(-acc) |> 
   # Keep only some of the conditions
   filter(Condition %in% c("Ascending", "Descending", "Non Order")) |> 
   mutate(
-    Condition = factor(Condition) |> relevel(ref = "Non Order")
+    Condition = factor(Condition, 
+                       levels = c("Non Order", "Ascending", "Descending")),
+    Subject = factor(Subject),
+    Stim = factor(Stim),
+    Sex = factor(Sex, levels = c("Male", "Female"))
   )
 
 
@@ -90,7 +97,7 @@ mod_fix.cond <- lmer(rt ~ Condition + (1 | Subject) + (1 | Stim),
 VarCorr(mod_rndm.intr)
 VarCorr(mod_fix.cond)
 
-1 - (120.02 / 115.22)^2
+1 - (127.35 / 123.08)^2
 # Accounting for ~0% of the variance in the time it take to respond to them.
 
 anova(mod_fix.cond, mod_rndm.intr) 
@@ -105,7 +112,7 @@ mod_rndm.cond <- lmer(rt ~ Condition + (Condition | Subject) + (1 | Stim),
                       data = order_data_correct)
 
 anova(mod_rndm.cond, mod_fix.cond, refit = FALSE)
-# Not clear if there's a difference between subjects in their order-effects.
+# There *might* be a difference between subjects in their order-effects.
 
 
 
@@ -124,6 +131,9 @@ model_parameters(mod_rndm.cond, ci_method = "S")
 # 3. Go back to the mod_rndm.cond mode, and remove the random intercept for
 #    stim. How has this affected the significance of the effect of condition?
 #    What can we learn from this?
-
+#   * We have 24 types of non-repeating stimuli here
+nlevels(order_data_correct$Stim)
+#     But note that there are only 24 possible non-repeating stimuli (4*3*2).
+#     Does this change your answer to question 3?
 
 

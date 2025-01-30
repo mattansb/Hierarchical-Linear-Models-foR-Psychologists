@@ -70,7 +70,7 @@ check_model(mod, check = "reqq")
 # We expect the dots to follow the green line (in this case, they do).
 
 
-# Dealing violations:
+# Dealing with violations:
 # - Probably not so impactful (https://doi.org/10.1007/s11135-018-0802-x)...
 
 

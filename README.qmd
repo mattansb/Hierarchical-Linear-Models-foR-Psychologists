@@ -72,7 +72,7 @@ make_pkg_table <- function(pkgs) {
 
 You will need:
 
-1. A fresh installation of [**`R`**](https://cran.r-project.org/) (preferably version 4.3.2 or above).
+1. A fresh installation of [**`R`**](https://cran.r-project.org/) (preferably `r R.version.string` at least).
 2. [RStudio IDE](https://www.rstudio.com/products/rstudio/download/) (optional, but recommended).
 3. The following packages, listed by lesson:
 

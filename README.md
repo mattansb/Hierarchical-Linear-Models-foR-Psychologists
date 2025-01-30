@@ -6,7 +6,7 @@
 [![](https://img.shields.io/badge/CC-BY--NC%204.0-lightgray)](http://creativecommons.org/licenses/by-nc/4.0/)  
 [![](https://img.shields.io/badge/Language-R-blue.png)](http://cran.r-project.org/)
 
-<sub>*Last updated 2024-09-26.*</sub>
+<sub>*Last updated 2025-01-30.*</sub>
 
 This Github repo contains all lesson files for *Hierarchical Linear
 Models in R*. The goal is to impart students with the basic tools to
@@ -37,7 +37,7 @@ Psychologists*](https://github.com/mattansb/Practical-Applications-in-R-for-Psyc
 You will need:
 
 1.  A fresh installation of [**`R`**](https://cran.r-project.org/)
-    (preferably version 4.3.2 or above).
+    (preferably R version 4.4.1 (2024-06-14 ucrt) at least).
 2.  [RStudio IDE](https://www.rstudio.com/products/rstudio/download/)
     (optional, but recommended).
 3.  The following packages, listed by lesson:
@@ -77,36 +77,37 @@ You can install all the packages used by running:
 The package versions used here:
 
 - `afex` 1.4-1 (*CRAN*)
-- `bayestestR` 0.14.0 (*CRAN*)
-- `brms` 2.21.0 (*CRAN*)
-- `car` 3.1-2 (*CRAN*)
-- `datawizard` 0.12.3 (*CRAN*)
-- `DHARMa` 0.4.6 (*CRAN*)
+- `bayestestR` 0.15.1 (*CRAN*)
+- `brms` 2.22.0 (*CRAN*)
+- `car` 3.1-3 (*CRAN*)
+- `datawizard` 1.0.0 (*CRAN*)
+- `DHARMa` 0.4.7 (*CRAN*)
 - `dplyr` 1.1.4 (*CRAN*)
-- `effectsize` 0.8.9 (*CRAN*)
-- `emmeans` 1.10.4 (*CRAN*)
+- `effectsize` 1.0.0 (*Dev*)
+- `emmeans` 1.10.6 (*CRAN*)
 - `forcats` 1.0.0 (*CRAN*)
 - `ggplot2` 3.5.1 (*CRAN*)
-- `glmmTMB` 1.1.9 (*CRAN*)
-- `glue` 1.7.0 (*CRAN*)
+- `glmmTMB` 1.1.10 (*CRAN*)
+- `glue` 1.8.0 (*CRAN*)
 - `haven` 2.5.4 (*CRAN*)
-- `insight` 0.20.4 (*CRAN*)
-- `lme4` 1.1-35.5 (*CRAN*)
+- `insight` 1.0.1 (*CRAN*)
+- `lme4` 1.1-36 (*CRAN*)
 - `lmerTest` 3.1-3 (*CRAN*)
 - `loo` 2.8.0 (*CRAN*)
-- `marginaleffects` 0.22.0 (*CRAN*)
+- `marginaleffects` 0.24.0.18 (*Github:
+  vincentarelbundock/marginaleffects*)
 - `merDeriv` 0.2-4 (*CRAN*)
 - `mixedup` 0.4.0 (*Github: m-clark/mixedup*)
 - `mlmRev` 1.0-8 (*CRAN*)
 - `nlme` 3.1-164 (*CRAN*)
-- `parameters` 0.22.2 (*CRAN*)
+- `parameters` 0.24.1 (*CRAN*)
 - `patchwork` 1.3.0 (*CRAN*)
-- `performance` 0.12.3 (*CRAN*)
+- `performance` 0.13.0 (*CRAN*)
 - `posterior` 1.6.0 (*CRAN*)
-- `remotes` 2.5.0 (*CRAN*)
+- `remotes` 2.5.0.9000 (*Github: r-lib/remotes*)
 - `scales` 1.3.0 (*CRAN*)
-- `see` 0.9.0 (*CRAN*)
-- `sjPlot` 2.8.16 (*CRAN*)
+- `see` 0.10.0 (*CRAN*)
+- `sjPlot` 2.8.17 (*CRAN*)
 - `statmod` 1.5.0 (*CRAN*)
 - `tidyverse` 2.0.0 (*CRAN*)
 

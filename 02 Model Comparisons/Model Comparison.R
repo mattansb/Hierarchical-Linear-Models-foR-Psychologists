@@ -63,7 +63,7 @@ ggplot(dataset, aes(session, rt, color = PersonID))+
                             N = nlevels(dataset$PersonID)))
 
 
-# Which effect you think you see?
+# Which effect do you think you see?
 
 
 

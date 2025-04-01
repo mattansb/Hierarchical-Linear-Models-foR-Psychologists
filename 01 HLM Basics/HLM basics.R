@@ -98,7 +98,7 @@ p_spaghetti
 
 ## Empty BP Model:
 #-> simply using lm()
-mod_empty <- lm(outcome ~ 1,       # 1 is for including the intercept
+mod_empty <- lm(outcome ~ 1, # 1 is for including the intercept
                 data = dataset_long)
 summary(mod_empty)
 

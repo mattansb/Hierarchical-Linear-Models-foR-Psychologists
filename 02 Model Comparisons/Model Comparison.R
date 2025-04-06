@@ -350,8 +350,8 @@ head(dataset2)
 
 # Don't forget to interpret your results as you go!
 
-# 1) Identify the random grouping variable, levels, DV, and predictors and their
-#    levels.
+# 1) Identify the design: the random grouping variable, levels, DV, and
+#    predictors and their levels.
 # 2) build 2 models:
 # Model A: empty model for predicting satisfaction.
 #          ?. What does the intercept estimate mean?

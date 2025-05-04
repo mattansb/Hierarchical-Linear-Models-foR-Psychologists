@@ -185,7 +185,7 @@ coefficients(mod_wthn.prsn)[["ID"]] |>
   geom_hline(yintercept = 0) + 
   theme_bw() + 
   scale_x_continuous(expression(Intercept[j]), labels = scales::label_comma()) + 
-  scale_y_continuous(expression("Interference"[j]), labels = scales::label_comma())
+  scale_y_continuous(expression(Interference[j]), labels = scales::label_comma())
 
 
 # We can also see there is *a lot* of within-person variation that is not
@@ -446,12 +446,12 @@ datagrid(
   model = mod_cli, # Based on what data?
   
   ID = NA, # set to NA to "ignore" the random effects = get population effects
-  Condition = unique # all unique levels
+  Condition = levels # all unique levels
 )
 
 
 slopes(mod_cli, variables = "inatten_c", by = "Condition",
-       newdata = datagrid(ID = NA, Condition = unique),
+       newdata = datagrid(ID = NA, Condition = levels),
        # Set this to indicate we're interested in the fixed effects!
        re.form = NA, vcov = "satterthwaite") 
 # The (n.s.) trends for the between person effects are:
@@ -484,4 +484,17 @@ comparisons(mod_cli, variables = list("Condition" =  "reference"), by = "inatten
 
 
 
+
+# Exercise ---------------------------------------------
+
+# Go back to the RT ~ Condition model. Compute two pseudo R squares.
+# 1. Compare the change in the relevant variance parameter from mod_rndm.intr
+#    to mod_wthn.prsn.
+# 2. Compare the change in the same variance parameter from mod_rndm.intr
+#    to:
+
+mod_wthn.prsn_fixd <- lmer(RT ~ Condition + (1 | ID), 
+                           data = ADHD_data)
+
+# How do these differ? Interpret both.
 

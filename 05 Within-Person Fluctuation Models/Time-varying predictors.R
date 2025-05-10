@@ -109,6 +109,11 @@ lmer(mood ~ 1 + (1 | PersonID), data = dataset) |>
 # -> Alternatively, this means it has only within-person variation, and thus the 
 #    time-varying predictor could only show a within-person effect.
 
+# We can also use this function to detect variability with respect to out random
+# grouping variable:
+dataset |> 
+  check_group_variation(select = c("symptoms", "mood", "baseage", "gender"), 
+                        by = "PersonID")
 
 # Visually:
 dataset |> 

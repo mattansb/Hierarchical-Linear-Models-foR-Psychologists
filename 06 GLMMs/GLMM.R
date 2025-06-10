@@ -18,14 +18,14 @@ SFON_data <- haven::read_sav("SFON.sav") |>
 
 # This data was collected from 46 children aged 3-5. 
 nlevels(SFON_data$ID)
-# They were given two vlidated versions (Truck/Bird) of the same task (Task): In
-# each version, they played with a toy together with an experimenter. During
-# each of "games", their behavior was coded as either showing some attention to
+# They were given two validated versions (Truck/Bird) of the same task (Task):
+# In each version, they played with a toy together with an experimenter. For
+# each of "game", their behavior was coded as either showing some attention to
 # the quantitative properties of the game (counting, saying numbers, etc.) or
 # not (Attend). Additionally, the children ability to discriminate between
 # quantities was measured (weberFr).
 
-head(SFON_data)
+head(SFON_data, n = 16)
 
 
 ## Understanding the data --------------------
@@ -70,6 +70,7 @@ model_parameters(mod_rndm.intr)
 # Coefficient is negative, hard to tell...
 model_parameters(mod_rndm.intr, exponentiate = TRUE)
 # An Odds of 0.21 is ~1:4.5, or p = 0.17
+plogis(-1.54)
 
 # However, this is a _biased_ estimate. Why?
 # Because inv(mean(logit)) != mean(inv(logit))
@@ -126,7 +127,8 @@ plot_predictions(mod_age, condition = "Age", re.form = NULL) +
                      labels = scales::label_percent(),
                      oob = scales::oob_squish) + 
   theme_bw()
-# The average marginal slopes are the average of the linear slopes across all values of Age.
+# The average marginal slopes are the average of the linear slopes across all
+# values of Age.
 avg_slopes(mod_age, variables = "Age", 
            re.form = NULL)
 # Age had a positive effect on attending, with the probability of attending

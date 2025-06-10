@@ -4,7 +4,6 @@
 library(tidyverse)
 library(datawizard)
 
-
 library(lmerTest)
 
 library(performance)
@@ -112,8 +111,12 @@ lmer(mood ~ 1 + (1 | PersonID), data = dataset) |>
 # We can also use this function to detect variability with respect to out random
 # grouping variable:
 dataset |> 
-  check_group_variation(select = c("symptoms", "mood", "baseage", "gender"), 
-                        by = "PersonID")
+  check_group_variation(
+    select = c("symptoms", "mood", "baseage", "gender", "session"), 
+    by = "PersonID", 
+    
+    tolerance_numeric = 0.01
+  )
 
 # Visually:
 dataset |> 
@@ -152,12 +155,10 @@ dataset <- dataset |>
          by = "PersonID", 
          
          suffix_groupmean = "_PM",
-         suffix_demean = "_WP") |> 
-  # add to the rest of the data
-  bind_cols(dataset)
+         suffix_demean = "_WP")
 
 dataset |> 
-  select(PersonID, contains("mood")) |> 
+  select(PersonID, session, contains("mood")) |> 
   head(data, n = 15)
 # mood_WP is centered at a variable (not a constant): person's usual level of
 # daily negative mood, as represented by each person's mean across occasions.
@@ -180,7 +181,7 @@ dataset |>
 
 
 # And that's it - we can now "forget" that those two variables were once one,
-# and continute as usual!
+# and continue as usual!
 
 
 

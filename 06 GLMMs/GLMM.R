@@ -84,7 +84,7 @@ avg_predictions(mod_rndm.intr,
                 newdata = datagrid(ID = unique), # We *want* the random effects
                 re.form = NULL) # means
 
-# Does this matter? Depends on what your doing. The biased estimates are
+# Does this matter? Depends on what you're doing. The biased estimates are
 # sometimes called *generalized means*, and those are sometimes fine. See:
 # https://rvlenth.github.io/emmeans/articles/transformations.html?q=bias#bias-adj
 

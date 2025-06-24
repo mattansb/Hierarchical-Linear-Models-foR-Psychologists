@@ -128,7 +128,7 @@ model_parameters(mod_rndm.cond, ci_method = "S")
 # 1. Add sex as a fixed effect.
 # 2. Can sex be added as a random slope? Do it. Interpret the fixed effect for
 #    sex. Plot your results.
-# 3. Go back to the mod_rndm.cond mode, and remove the random intercept for
+# 3. Go back to the mod_rndm.cond model, and remove the random intercept for
 #    stim. How has this affected the significance of the effect of condition?
 #    What can we learn from this?
 #   * We have 24 types of non-repeating stimuli here

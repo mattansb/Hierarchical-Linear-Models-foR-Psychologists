@@ -1,8 +1,37 @@
 ---
 format: gfm
 execute:
-  echo: true
+  echo: false
+  warning: false
 ---
+
+```{r}
+#| include: false
+
+library(tidyverse)
+library(glue)
+
+extract_pkgs <- function(fl) {
+  if (length(fl) == 1) {
+    txt <- read.delim(fl, header = FALSE)[[1]]
+    
+    pkgs <- str_extract_all(
+      string = txt,
+      pattern = "((?<=(library|require)\\()[a-zA-Z0-9\\.]{1,}(?=\\))|[a-zA-Z0-9\\.]{1,}(?=\\:{2}))"
+    )
+    
+    pkgs <- unlist(pkgs)
+    
+  } else if (length(fl) > 1) {
+    pkgs <- sapply(fl, extract_pkgs)
+  }
+  
+  
+  pkgs |>
+    unlist(recursive = TRUE) |>
+    unique()
+}
+```
 
 # Hierarchical Linear Models foR Psychologists
 
@@ -27,96 +56,46 @@ This course assumes basic competence in R (importing, regression modeling, plott
 
 ## Setup
 
-```{r}
-#| echo: false
-extract_pkgs <- function(fl) {
-  if (length(fl) == 1) {
-    txt <- read.delim(fl, header = FALSE)[[1]] |> 
-      paste0(collapse = "\n")
-    
-    pkg_lib <- stringr::str_extract_all(txt, pattern = "(?<=library\\().{1,}(?=\\))")
-    
-    pkg_req <- stringr::str_extract_all(txt, pattern = "(?<=require\\().{1,}(?=\\))")
-    
-    pkg_name <- stringr::str_extract_all(txt, pattern = "[a-z|A-Z|0-9]{1,}(?=\\:\\:)")
-    
-    pkgs <- c(pkg_lib, pkg_req, pkg_name)
-    
-  } else if (length(fl) > 1) {
-    pkgs <- sapply(fl, extract_pkgs)
-  }
-  
-  
-  pkgs |>
-    unlist(recursive = TRUE) |>
-    unique()
-}
-
-make_pkg_table <- function(pkgs) {
-  pkgs <- pkgs[sapply(pkgs, function(x) length(x) > 0)]
-  
-  ps <- sapply(pkgs, function(x){
-    paste0(
-      glue::glue("[`{x}`](https://CRAN.R-project.org/package={x})"),
-      collapse = ", "
-    )
-  })
-  
-  glue::glue("|[{folder}](\\{folder})|{ps}|\n\n",
-             folder = names(pkgs)) |> 
-    c("|Lesson|Packages|\n|----|----|\n", i2 = _) |> # header
-    paste0(collapse = "")
-}
-```
-
-
 You will need:
 
 1. A fresh installation of [**`R`**](https://cran.r-project.org/) (preferably `r R.version.string` at least).
 2. [RStudio IDE](https://www.rstudio.com/products/rstudio/download/) (optional, but recommended).
 3. The following packages, listed by lesson:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-r_list <- list.files(pattern = ".(R|r)$", recursive = TRUE, full.names = TRUE)
-r_list <- r_list[!stringr::str_detect(r_list, pattern = "(SOLUTION|logo)")]
-r_list <- r_list[stringr::str_detect(r_list, pattern = "^./[0-9]")]
-
-lesson_names <- stringr::str_extract(r_list, pattern = "(?<=(/)).{1,}(?=(/))")
-
-r_list <- split(r_list, lesson_names)
-
-pkgs <- lapply(r_list, extract_pkgs)
-
-print_pkgs <- make_pkg_table(pkgs)
-```
-
-`r print_pkgs`
-
-You can install all the packages used by running:
 
 ```{r}
-#| echo: false
-#| warning: false
-#| comment: ""
+r_files <- list.files(pattern = ".R$", recursive = TRUE, full.names = TRUE)
 
-pkgs <- pkgs |> 
-  unlist(recursive = TRUE) |> 
+r_files <- r_files[str_detect(r_files, "^\\./\\d{2}")]
+
+r_lesson_names <- str_extract(r_files, pattern = "(?<=(/)).{1,}(?=(/))")
+
+r_list <- split(r_files, r_lesson_names)
+
+r_pkgs <- lapply(r_list, extract_pkgs)
+
+r_df <- tibble(
+  Lesson = names(r_pkgs),
+  Packages = r_pkgs
+)
+
+r_df |> 
+  mutate(
+    Lesson = glue("[{Lesson}](//{Lesson})"),
+    Packages = sapply(Packages, \(x) glue('`{x}`') |> glue_collapse(sep = ", "))
+  ) |> 
+  knitr::kable()
+```
+
+<details><summary><i>Installing R Packages</i></summary>
+
+You can install all the R packages used by running:
+
+```{r}
+r_pkgs <- r_pkgs |>
+  unlist(recursive = TRUE) |>
   unique() |> sort()
 
-cat("# in alphabetical order:")
-
-capture.output(cat("pkgs <-", capture.output(dput(pkgs)), fill = 80)) |>
-  styler::style_text()
-
-cat("install.packages(pkgs, dependencies = TRUE)")
-```
-
-<details>
-<summary><i>Package Versions</i></summary>
-The package versions used here:
-
-```{r}
-#| echo: false
 packinfo <- installed.packages(fields = c("Package", "Version"))
 
 get_src <- function(pkg) {
@@ -131,13 +110,35 @@ get_src <- function(pkg) {
   return(src)
 }
 
-V <- packinfo[pkgs,"Version"]
-src <- sapply(pkgs, get_src)
-# setNames(paste0(V, " (", src,")"), pkgs)
+r_pkg_info <- tibble(
+  pkg = r_pkgs,
+  source = sapply(r_pkgs, get_src),
+  version = packinfo[r_pkgs,"Version"]
+) |> 
+  filter(version != packageVersion("base")) |> 
+  mutate(
+    pak_src = case_when(
+      source == "Dev" ~ NA,
+      source == "CRAN" ~ "cran",
+      str_detect(source, "Github") ~ "github",
+      str_detect(source, "Bioconductor") ~ "bioc"
+    ),
+    
+    pak = case_match(
+      pak_src,
+      "cran" ~ glue("cran::{pkg}"),
+      "bioc" ~ glue("bioc::{pkg}"),
+      "github" ~ glue("github::{str_remove_all(source, 'Github: ')}"), 
+      .default = pkg
+    )
+  ) |> 
+  arrange(pkg)
 
-v_info <- paste0(glue::glue(" - `{pkgs}` {V} (*{src}*)"), collapse = "\n")
+cat("# in alphabetical order:\n\n")
+
+cat("pak::pak(\n  c(")
+cat(glue_data(r_pkg_info, '    "{pak}" # {version}') |> glue_collapse(sep = "\n"))
+cat("  )\n)")
 ```
-
-`r v_info`
 
 </details>

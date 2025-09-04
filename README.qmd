@@ -62,7 +62,7 @@ make_pkg_table <- function(pkgs) {
     )
   })
   
-  glue::glue("|[{folder}](/{folder})|{ps}|\n\n",
+  glue::glue("|[{folder}](\\{folder})|{ps}|\n\n",
              folder = names(pkgs)) |> 
     c("|Lesson|Packages|\n|----|----|\n", i2 = _) |> # header
     paste0(collapse = "")

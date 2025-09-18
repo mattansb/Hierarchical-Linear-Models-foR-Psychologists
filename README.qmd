@@ -5,6 +5,29 @@ execute:
   warning: false
 ---
 
+# Hierarchical Linear Models foR Psychologists
+
+[![](https://img.shields.io/badge/Open%20Educational%20Resources-Compatable-brightgreen)](https://creativecommons.org/about/program-areas/education-oer/)
+[![](https://img.shields.io/badge/CC-BY--NC%204.0-lightgray)](http://creativecommons.org/licenses/by-nc/4.0/)
+[![](https://img.shields.io/badge/Language-R-blue)](http://cran.r-project.org/)
+
+<sub>*Last updated `r Sys.Date()`.*</sub>
+
+This Github repo contains all lesson files for *Hierarchical Linear Models in R*.
+The goal is to impart students with the basic tools to construct, evaluate and compare various **(generalized) linear mixed models, using [`lme4`](https://cran.r-project.org/web/packages/lme4/index.html/)**,
+based on Lesa Hoffman's [_Longitudinal Analysis: Modeling Within-Person Fluctuation and Change_](https://www.pilesofvariance.com/index.html).
+(Materials developed with Yael Bar-Shachar.)
+
+These topics were taught in the graduate-level course ***Hierarchical Linear Models for Psychologists*** (Psych Dep., Ben-Gurion University of the Negev; Psych Dep., Tel-Aviv University).
+This course assumes basic competence in R (importing, regression modeling, plotting, etc.), along the lines of [*Practical Applications in R for Psychologists*](https://github.com/mattansb/Practical-Applications-in-R-for-Psychologists).
+
+**Notes:**
+
+- This repo contains only materials relating to *Practical Applications in R*, and does not contain any theoretical or introductory materials.
+- Please note that some code does not work *on purpose*, to force students to learn to debug.
+
+## Setup
+
 ```{r}
 #| include: false
 
@@ -14,47 +37,22 @@ library(glue)
 extract_pkgs <- function(fl) {
   if (length(fl) == 1) {
     txt <- read.delim(fl, header = FALSE)[[1]]
-    
+
     pkgs <- str_extract_all(
       string = txt,
       pattern = "((?<=(library|require)\\()[a-zA-Z0-9\\.]{1,}(?=\\))|[a-zA-Z0-9\\.]{1,}(?=\\:{2}))"
     )
-    
+
     pkgs <- unlist(pkgs)
-    
   } else if (length(fl) > 1) {
     pkgs <- sapply(fl, extract_pkgs)
   }
-  
-  
+
   pkgs |>
     unlist(recursive = TRUE) |>
     unique()
 }
 ```
-
-# Hierarchical Linear Models foR Psychologists
-
-[![](https://img.shields.io/badge/Open%20Educational%20Resources-Compatable-brightgreen)](https://creativecommons.org/about/program-areas/education-oer/)
-[![](https://img.shields.io/badge/CC-BY--NC%204.0-lightgray)](http://creativecommons.org/licenses/by-nc/4.0/)  
-[![](https://img.shields.io/badge/Language-R-blue)](http://cran.r-project.org/)
-
-<sub>*Last updated `r Sys.Date()`.*</sub>
-
-This Github repo contains all lesson files for *Hierarchical Linear Models in R*. 
-The goal is to impart students with the basic tools to construct, evaluate and compare various **(generalized) linear mixed models, using [`lme4`](https://cran.r-project.org/web/packages/lme4/index.html/)**,
-based on Lesa Hoffman's [_Longitudinal Analysis: Modeling Within-Person Fluctuation and Change_](https://www.pilesofvariance.com/index.html).
-(Materials developed with Yael Bar-Shachar.)
-
-These topics were taught in the graduate-level course ***Hierarchical Linear Models for Psychologists*** (Psych Dep., Ben-Gurion University of the Negev; Psych Dep., Tel-Aviv University). 
-This course assumes basic competence in R (importing, regression modeling, plotting, etc.), along the lines of [*Practical Applications in R for Psychologists*](https://github.com/mattansb/Practical-Applications-in-R-for-Psychologists).
-
-**Notes:**  
-
-- This repo contains only materials relating to *Practical Applications in R*, and does not contain any theoretical or introductory materials.  
-- Please note that some code does not work *on purpose*, to force students to learn to debug.
-
-## Setup
 
 You will need:
 
@@ -79,15 +77,17 @@ r_df <- tibble(
   Packages = r_pkgs
 )
 
-r_df |> 
+r_df |>
   mutate(
     Lesson = glue("[{Lesson}](//{Lesson})"),
     Packages = sapply(Packages, \(x) glue('`{x}`') |> glue_collapse(sep = ", "))
-  ) |> 
+  ) |>
   knitr::kable()
 ```
 
-<details><summary><i>Installing R Packages</i></summary>
+
+<details>
+<summary><i>Installing R Packages</i></summary>
 
 You can install all the R packages used by running:
 
@@ -114,8 +114,8 @@ r_pkg_info <- tibble(
   pkg = r_pkgs,
   source = sapply(r_pkgs, get_src),
   version = packinfo[r_pkgs,"Version"]
-) |> 
-  filter(version != packageVersion("base")) |> 
+) |>
+  filter(version != packageVersion("base")) |>
   mutate(
     pak_src = case_when(
       source == "Dev" ~ NA,
@@ -123,22 +123,28 @@ r_pkg_info <- tibble(
       str_detect(source, "Github") ~ "github",
       str_detect(source, "Bioconductor") ~ "bioc"
     ),
-    
+
     pak = case_match(
       pak_src,
       "cran" ~ glue("cran::{pkg}"),
       "bioc" ~ glue("bioc::{pkg}"),
-      "github" ~ glue("github::{str_remove_all(source, 'Github: ')}"), 
+      "github" ~ glue("github::{str_remove_all(source, 'Github: ')}"),
       .default = pkg
     )
-  ) |> 
+  ) |>
   arrange(pkg)
 
 cat("# in alphabetical order:\n\n")
 
 cat("pak::pak(\n  c(")
-cat(glue_data(r_pkg_info, '    "{pak}" # {version}') |> glue_collapse(sep = "\n"))
+
+comma <- rep(",", nrow(r_pkg_info))
+comma[nrow(r_pkg_info)] <- ""
+
+cat(
+  glue_data(r_pkg_info, '    "{pak}"{comma} # {version}') |> glue_collapse(sep = "\n")
+)
+
 cat("  )\n)")
 ```
-
 </details>

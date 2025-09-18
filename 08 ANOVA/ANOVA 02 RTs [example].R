@@ -65,9 +65,9 @@ mod_gauss <- lmer(
 # Another popular alternative is the log-normal likelihood, which can be fit by transforming the RTs.
 mod_lnorm <- lmer(
   log(rt) ~ condition * congruency + (condition * congruency | pno),
-  control = lmerControl("bobyqa"),
   data = stroop_1
 )
+check_convergence(mod_lnorm) # LGTM
 
 
 (plot(check_predictions(mod_inv.gaus)) + ggtitle("Inverse Gaussian")) /
@@ -98,10 +98,22 @@ contrasts(stroop_1$congruency) <- contr.sum
 mod_inv.gaus2 <- glmer(
   rt ~ condition * congruency + (condition * congruency | pno),
   family = inverse.gaussian("identity"),
-  control = glmerControl("bobyqa"),
   data = stroop_1
 )
+check_convergence(mod_inv.gaus2) # Oh no! A real convergence issue!
 
+# Let's try and fix that by using a different internal optimizer function:
+mod_inv.gaus2 <- glmer(
+  rt ~ condition * congruency + (condition * congruency | pno),
+  family = inverse.gaussian("identity"),
+  data = stroop_1,
+
+  control = glmerControl("bobyqa"),
+)
+# Yay!
+# For even more ways to deal with convergence issues, see:
+?allFit
+?brms::brm # go full Bayesian
 
 # We can obtain an Type-3 ANOVA table using the {car} package:
 car::Anova(mod_inv.gaus2, type = 3)

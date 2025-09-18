@@ -319,20 +319,13 @@ mod_rndm.poly2 <- lmer(
   data = dataset
 )
 # We get a convergence warning!
-# This means the model failed to properly estimate its parameters - The model's
-# estimates cannot be trusted!
-?allFit
-
-
-# Let's try and fix that by using a different internal optimizer function:
-mod_rndm.poly2 <- lmer(
-  rt ~
-    poly(time, 2, raw = TRUE) +
-      (poly(time, 2, raw = TRUE) | PersonID),
-  control = lmerControl(optimizer = "bobyqa"),
-  data = dataset
-)
-# Yay!
+# Convergance issues indicate that the model failed to properly estimate its
+# parameters - therfore the model's estimates cannot be trusted!
+# However - {lme4} is quite conservative in issuing convergence warnings, and
+# sometimes they can be ignored. We can check convergence with a more lenient
+# criterion using the {performance} package:
+check_convergence(mod_rndm.poly2)
+# This (TRUE) indicates that the model DID converge well (enough).
 
 anova(mod_rndm.poly2, mod_fixed.poly2, refit = FALSE)
 

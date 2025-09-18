@@ -160,15 +160,16 @@ anova(mod_rndm.grade, mod_grade, refit = FALSE)
 # Now let's add the random slope for schools:
 mod_rndm.grade2 <- lmer(
   math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
-  data = egsingle,
-  control = lmerControl("bobyqa")
+  data = egsingle
 )
+# We get a convergence warning here - let's check it out:
+check_convergence(mod_rndm.grade2) # LGTM
 
 VarCorr(mod_rndm.grade)
 VarCorr(mod_rndm.grade2)
 # We can see that the child-level variance in the growth slope has reduced:
-1 - (0.063096 / 0.12190)^2
-# 73% of the variance between how children differ in their growth can be
+1 - (0.040318 / 0.12190)^2
+# 89% of the variance between how children differ in their growth can be
 # attributed to different schools showing different growth.
 
 ## Conditional growth model -----------------------------------------------
@@ -198,9 +199,10 @@ ggplot(egsingle, aes(grade, math)) +
 
 mod_lowinc <- lmer(
   math ~ grade * lowinc + (grade | childid:schoolid) + (grade | schoolid),
-  data = egsingle,
-  control = lmerControl("bobyqa")
+  data = egsingle
 )
+check_convergence(mod_lowinc) # LGTM
+
 anova(mod_lowinc, mod_rndm.grade2)
 # The models are different - but the difference between models accounts for the
 # main effect and the interaction.

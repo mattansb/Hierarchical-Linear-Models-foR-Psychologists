@@ -1,5 +1,4 @@
-
-            ## Growth models ##
+## Growth models ##
 
 library(dplyr)
 library(ggplot2)
@@ -18,7 +17,10 @@ library(performance)
 # trials (in milliseconds).
 
 temp <- tempfile()
-download.file("https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip", temp)
+download.file(
+  "https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip",
+  temp
+)
 dataset <- haven::read_sav(unz(temp, "SPSS_Chapter6/SPSS_Chapter6.sav"))
 unlink(temp)
 
@@ -26,7 +28,6 @@ head(dataset)
 
 # Our goal will be to model the change in RT over time (We will be examining
 # 'session' as continuous variable)
-
 
 ## Understanding the data --------------------
 
@@ -38,23 +39,20 @@ dataset |>
   filter(PersonID == "101")
 
 
-
 ## Descriptive statistics  ------------------------------------
 # for RT at each occasion:
 
 dataset |>
   group_by(session) |>
   summarise(
-    across(rt, .fns = list(length = length,
-                           mean = mean,
-                           sd = sd,
-                           min = min,
-                           max = max))
+    across(
+      rt,
+      .fns = list(length = length, mean = mean, sd = sd, min = min, max = max)
+    )
   )
 
 # Over time, the means appear to decrease (i.e., RT improves across sessions),
 # but the rate of the decrease appears to slow down after the second session..
-
 
 ## Two different effects of Time ---------------------------------
 
@@ -65,8 +63,6 @@ dataset |>
 # 3. Do they get faster across sessions?
 # 4. Do they differ in their improvement (or lack of)?
 # Which question is answered by which type of effect?
-
-
 
 # Two different effects of Time:
 #
@@ -81,27 +77,33 @@ dataset |>
 #
 # COOL VISUALIZATION: http://mfviz.com/hierarchical-models/
 
-
-
 ## Spaghetti Plots helps to consider the pattern of the data:
 
 ## Spaghetti plot:
-ggplot(dataset, aes(session, rt))+
-  stat_smooth(aes(color = factor(PersonID)),
-              se = FALSE,
-              alpha = 0.9, show.legend = FALSE) +
-  scale_color_manual(
-    values = sample(c("#c9190e", "#ccba82", "#daca89", "#d2c291", "#c8b04f"),
-                    size = 101, replace = TRUE)
+ggplot(dataset, aes(session, rt)) +
+  stat_smooth(
+    aes(color = factor(PersonID)),
+    se = FALSE,
+    alpha = 0.9,
+    show.legend = FALSE
   ) +
-  stat_smooth(se = FALSE,
-              color = "black", linewidth = 2) +
+  scale_color_manual(
+    values = sample(
+      c("#c9190e", "#ccba82", "#daca89", "#d2c291", "#c8b04f"),
+      size = 101,
+      replace = TRUE
+    )
+  ) +
+  stat_smooth(se = FALSE, color = "black", linewidth = 2) +
   scale_x_continuous("Session", breaks = 1:6) +
   scale_y_continuous("Reaction Time", labels = scales::label_comma()) +
   theme_bw() +
-  labs(caption = glue::glue("Data from {N} people, over 6 sessions.",
-                            N = nlevels(factor(dataset$PersonID))))
-
+  labs(
+    caption = glue::glue(
+      "Data from {N} people, over 6 sessions.",
+      N = nlevels(factor(dataset$PersonID))
+    )
+  )
 
 
 # Seems linear? Maybe not...
@@ -110,14 +112,11 @@ ggplot(dataset, aes(session, rt))+
 # didn't forced it to be a linear line as we did the first time we saw this
 # example...
 
-
 # Now, looking at this plot, will it make sense to model:
 # -> the intercept as fixed?
 # -> the intercept as random?
 # -> time as fixed?
 # -> time as random?
-
-
 
 ## Preparation for modeling --------------------------------------------------
 
@@ -138,14 +137,6 @@ dataset <- dataset |>
   )
 
 
-
-
-
-
-
-
-
-
 # Building the linear growth model -------------------------------------------
 
 # We will build the models that were presented in chapter 6.\ we saw in the
@@ -161,8 +152,6 @@ dataset <- dataset |>
 # 3. Variances of random effects (and their covariances with random effects
 #    already in the model) will be added one at a time so that the unique
 #    contribution of each can be evaluated with a -2LL test\AIC\BIC.
-
-
 
 ## Random intercepts model ---------------------------------------------------
 
@@ -181,18 +170,13 @@ dataset <- dataset |>
 #   the individual's deviation from the mean intercept + error for person j in
 #   obs. i.
 
-
-mod_rndm.intr <- lmer(rt ~ 1 + (1 | PersonID),
-                      data = dataset)
+mod_rndm.intr <- lmer(rt ~ 1 + (1 | PersonID), data = dataset)
 model_parameters(mod_rndm.intr, ci_method = "S")
 
 icc(mod_rndm.intr)
 # 81.7% of the variance in the RT outcome is BP variance in mean RT.
 
-
-
 ## Fixed effect time -------------------------------------
-
 
 # FIXED EFFECTS: intercept, time
 # RANDOM EFFECTS: intercept
@@ -210,8 +194,7 @@ icc(mod_rndm.intr)
 #   time value at obs. i  + the individual difference in person j's intercept
 #   + error for person j in obs. i
 
-mod_fixef.time <- lmer(rt ~ time + (1 | PersonID),
-                       data = dataset)
+mod_fixef.time <- lmer(rt ~ time + (1 | PersonID), data = dataset)
 model_parameters(mod_fixef.time, ci_method = "S")
 
 # mean trajectory for RT that starts at fixed intercept of gamma00 = 1,899.6
@@ -223,7 +206,6 @@ model_parameters(mod_fixef.time, ci_method = "S")
 anova(mod_fixef.time, mod_rndm.intr)
 
 
-
 # How much variance is accounted for by the fixed effect for time?
 r2(mod_fixef.time)
 
@@ -232,9 +214,7 @@ VarCorr(mod_fixef.time)
 1 - (188.84 / 211.9)^2
 
 
-
 ## Random slopes for time ---------------------------------------
-
 
 # FIXED EFFECTS: intercept, time
 # RANDOM EFFECTS: intercept, time
@@ -252,10 +232,8 @@ VarCorr(mod_fixef.time)
 #   based on the general + individual effects) * time value at obs. i + the
 #   individual difference in person j mean + error for person j in time i.
 
-
 # We can model the cov between random effects (as in the book):
-mod_rndm.time <- lmer(rt ~ time + (time | PersonID),
-                      data = dataset)
+mod_rndm.time <- lmer(rt ~ time + (time | PersonID), data = dataset)
 
 
 # To test the significance of the addition of the random linear time slope
@@ -267,8 +245,6 @@ ranova(mod_rndm.time) # or...
 
 model_parameters(mod_rndm.time, ci_method = "S", ci_random = TRUE)
 # There seems to be a negative correlation... How would we interpreter it?
-
-
 
 # Quadratic models (that's new!) ----------------------
 
@@ -288,21 +264,20 @@ model_parameters(mod_rndm.time, ci_method = "S", ci_random = TRUE)
 # A single bend trajectories in which the rate of change appears to change only
 # once.
 
-
-
 ## Fixed quadratic, random linear time model ----------------------------------
 
 # FIXED EFFECTS: intercept, time, time^2
 # RANDOM EFFECTS: intercept, time
 
-mod_fixed.poly2 <- lmer(rt ~ poly(time, 2, raw = TRUE) + (time | PersonID),
-                        data = dataset)
+mod_fixed.poly2 <- lmer(
+  rt ~ poly(time, 2, raw = TRUE) + (time | PersonID),
+  data = dataset
+)
 # This syntax will give us the same:
 #     rt ~ time + I(time ^ 2) + (time | PersonID)
 model_parameters(mod_fixed.poly2, ci_method = "S")
 # raw = TRUE is important - if set to FALSE (default) it centers the predictor
 # and changes the interpretation of the coefs (but not the model fit).
-
 
 # The fixed quadratic time slope Gamma20 is significant +
 # this model presents better fit:
@@ -325,29 +300,24 @@ anova(mod_fixed.poly2, mod_rndm.time)
 # slope creates a decelerating negative trajectory, such that the negative
 # linear rate of change will become less negative per session by 27.8.
 
-
-
-
 # Again, the second degree is significant - how can we interpret this?
-
 
 # So, the decline in RT slows down across sessions on average, but do people
 # differ in their rates of deceleration...?
-
-
-
 
 ## Full random quadratic time model ------------------------------------------
 # A random quadratic effect of time is a person-specific deviation from the
 # fixed quadratic effect!
 
-
 # FIXED EFFECTS: intercept, time, time^2
 # RANDOM EFFECTS: intercept, time, time^2
 
-mod_rndm.poly2 <- lmer(rt ~ poly(time, 2, raw = TRUE) +
-                         (poly(time, 2, raw = TRUE) | PersonID),
-                       data = dataset)
+mod_rndm.poly2 <- lmer(
+  rt ~
+    poly(time, 2, raw = TRUE) +
+      (poly(time, 2, raw = TRUE) | PersonID),
+  data = dataset
+)
 # We get a convergence warning!
 # This means the model failed to properly estimate its parameters - The model's
 # estimates cannot be trusted!
@@ -355,12 +325,14 @@ mod_rndm.poly2 <- lmer(rt ~ poly(time, 2, raw = TRUE) +
 
 
 # Let's try and fix that by using a different internal optimizer function:
-mod_rndm.poly2 <- lmer(rt ~ poly(time, 2, raw = TRUE) +
-                         (poly(time, 2, raw = TRUE) | PersonID),
-                       control = lmerControl(optimizer = "bobyqa"),
-                       data = dataset)
+mod_rndm.poly2 <- lmer(
+  rt ~
+    poly(time, 2, raw = TRUE) +
+      (poly(time, 2, raw = TRUE) | PersonID),
+  control = lmerControl(optimizer = "bobyqa"),
+  data = dataset
+)
 # Yay!
-
 
 anova(mod_rndm.poly2, mod_fixed.poly2, refit = FALSE)
 
@@ -368,12 +340,8 @@ model_parameters(mod_rndm.poly2, ci_method = "S", effects = "fixed")
 VarCorr(mod_rndm.poly2)
 # What does the correlation between time and time^2 tell us?
 
-
 # These models' results are the same as in the book - go over this tutorial with
 # the book.
-
-
-
 
 ## Simple intercepts and slopes ------------------------------------------------
 
@@ -382,31 +350,38 @@ VarCorr(mod_rndm.poly2)
 
 library(marginaleffects)
 
-plot_predictions(mod_rndm.poly2, condition = "time",
-                 re.form = NA, vcov = "satterthwaite") +
+plot_predictions(
+  mod_rndm.poly2,
+  condition = "time",
+  re.form = NA,
+  vcov = "satterthwaite"
+) +
   theme_classic() +
   scale_y_continuous("Reaction Time", labels = scales::label_comma())
 
 
 # Simple intercepts in each time point (with CI)
-predictions(mod_rndm.poly2,
-            newdata = datagrid(PersonID = NA, time = 0:5),
-            re.form = NA, vcov = "satterthwaite")
+predictions(
+  mod_rndm.poly2,
+  newdata = datagrid(PersonID = NA, time = 0:5),
+  re.form = NA,
+  vcov = "satterthwaite"
+)
 
 # Simple slopes (instantaneous linear rate of change) at each time point
-slopes(mod_rndm.poly2, variables = "time",
-       newdata = datagrid(PersonID = NA, time = 0:5),
-       re.form = NA, vcov = "satterthwaite")
+slopes(
+  mod_rndm.poly2,
+  variables = "time",
+  newdata = datagrid(PersonID = NA, time = 0:5),
+  re.form = NA,
+  vcov = "satterthwaite"
+)
 
 
 # The linear rate of change is significantly negative through session 4, but by
 # session 5 it is nonsignificantly negative (and is nonsignificantly positive at
 # session 6). Thus, the improvement predicted by the quadratic model appears to
 # ?shut off? after session 4.
-
-
-
-
 
 # Exercise ----------------------------------------------------------------
 
@@ -431,18 +406,16 @@ head(dataex)
 
 ## Spaghetti Plots
 ggplot(dataex, aes(time, intimacy, colour = factor(id))) +
-  facet_grid(cols = vars(treatment),
-             labeller = as_labeller(c("0" = "Control",
-                                      "1" = "Treatment"))) +
+  facet_grid(
+    cols = vars(treatment),
+    labeller = as_labeller(c("0" = "Control", "1" = "Treatment"))
+  ) +
   geom_line() +
-  stat_smooth(method = 'lm', se = FALSE,
-              colour = "black", linewidth = 1) +
+  stat_smooth(method = 'lm', se = FALSE, colour = "black", linewidth = 1) +
   guides(colour = "none") +
   theme_bw() +
   labs(y = "Intimacy", x = "Time")
 # What do you see here? which effects?
-
-
 
 # Your mission- Build and compare the following models:
 # 1. random intercepts model for predicting intimacy

@@ -1,4 +1,3 @@
-
 library(dplyr)
 library(ggplot2)
 
@@ -11,24 +10,24 @@ library(parameters)
 
 order_data <- read.csv("order.csv")
 head(order_data)
-# The task: subjects were presented with 3 circles filled with of dots. 
+# The task: subjects were presented with 3 circles filled with of dots.
 # They had to decide if *all* of circles had the same number of dots in them, or
 # if at least one had a different number of dots (See task-stimuli.png)
 
-
-
-order_data_correct <- order_data |> 
+order_data_correct <- order_data |>
   # Drop subjects that didn't understand the task
-  group_by(Subject) |> 
+  group_by(Subject) |>
   filter(mean(acc[Condition == "partial rep"]) > 0.6) |>
   # Keep only correct trials
-  filter(acc == 1) |> 
-  select(-acc) |> 
+  filter(acc == 1) |>
+  select(-acc) |>
   # Keep only some of the conditions
-  filter(Condition %in% c("Ascending", "Descending", "Non Order")) |> 
+  filter(Condition %in% c("Ascending", "Descending", "Non Order")) |>
   mutate(
-    Condition = factor(Condition, 
-                       levels = c("Non Order", "Ascending", "Descending")),
+    Condition = factor(
+      Condition,
+      levels = c("Non Order", "Ascending", "Descending")
+    ),
     Subject = factor(Subject),
     Stim = factor(Stim),
     Sex = factor(Sex, levels = c("Male", "Female"))
@@ -44,8 +43,6 @@ head(order_data_correct)
 #       acc - was the response correct?
 #        rt - reaction time
 
-
-
 ## Understanding the data --------------------
 
 # The outcome is "rt".
@@ -53,27 +50,23 @@ head(order_data_correct)
 # them? What level are the other variables on? School (3)? Person (2)?
 # Measurement (1)?
 
-order_data_correct |> 
+order_data_correct |>
   filter(Subject == "402")
 
-order_data_correct |> 
-  filter(Stim == "L1.M2.R4") |> 
+order_data_correct |>
+  filter(Stim == "L1.M2.R4") |>
   print(n = 20)
-
-
 
 
 # The research questions: Does the order (or lack thereof) of the dots
 # (ascending or descending) facilitate the processing of the stimuli?
 
-
-
-
-
 # Random intercept model ------------------
 
-mod_rndm.intr <- lmer(rt ~ 1 + (1 | Subject) + (1 | Stim),
-                      data = order_data_correct)
+mod_rndm.intr <- lmer(
+  rt ~ 1 + (1 | Subject) + (1 | Stim),
+  data = order_data_correct
+)
 
 icc(mod_rndm.intr)
 icc(mod_rndm.intr, by_group = TRUE) # ICC for each group
@@ -84,13 +77,12 @@ icc(mod_rndm.intr, by_group = TRUE) # ICC for each group
 ranova(mod_rndm.intr) # Both are significant
 
 
-
-
-
 # Condition effect -----------------------
 
-mod_fix.cond <- lmer(rt ~ Condition + (1 | Subject) + (1 | Stim),
-                     data = order_data_correct)
+mod_fix.cond <- lmer(
+  rt ~ Condition + (1 | Subject) + (1 | Stim),
+  data = order_data_correct
+)
 
 # Since Condition is a Stim-level effect, it should explain some of the
 # differences between the stimuli (in their intercepts):
@@ -100,28 +92,24 @@ VarCorr(mod_fix.cond)
 1 - (127.35 / 123.08)^2
 # Accounting for ~0% of the variance in the time it take to respond to them.
 
-anova(mod_fix.cond, mod_rndm.intr) 
+anova(mod_fix.cond, mod_rndm.intr)
 # This effect if non-sig, and both BIC and AIC support the simpler model.
-
 
 ## Random slopes --------
 
 # Condition is nested *within* subject, so we can model that random slope(s):
 
-mod_rndm.cond <- lmer(rt ~ Condition + (Condition | Subject) + (1 | Stim),
-                      data = order_data_correct)
+mod_rndm.cond <- lmer(
+  rt ~ Condition + (Condition | Subject) + (1 | Stim),
+  data = order_data_correct
+)
 
 anova(mod_rndm.cond, mod_fix.cond, refit = FALSE)
 # There *might* be a difference between subjects in their order-effects.
 
-
-
 model_parameters(mod_rndm.cond, ci_method = "S")
 # We can see that ordered stimuli are responded to faster, but there results are
 # not significant.
-
-
-
 
 # Exercise ----------------------------------------------------------------
 
@@ -135,5 +123,3 @@ model_parameters(mod_rndm.cond, ci_method = "S")
 nlevels(order_data_correct$Stim)
 #     But note that there are only 24 possible non-repeating stimuli (4*3*2).
 #     Does this change your answer to question 3?
-
-

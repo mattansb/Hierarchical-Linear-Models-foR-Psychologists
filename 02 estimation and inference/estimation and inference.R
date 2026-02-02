@@ -1,7 +1,4 @@
-### 2 - Model Comparison ###
-
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 
 library(lmerTest)
 
@@ -11,12 +8,11 @@ library(parameters)
 
 # Setup --------------------------------------------------------------------
 
-# The data:
-# 101 older adults were measured once a day, over a period of six days Each day
-# they preformed the same cognitive task The outcome - processing speed (average
-# RT across trials) The purpose of the study: to assess individual differences
-# in short-term learning; individual trajectories for the change in RT across
-# the six occasions.
+# The data: 101 older adults were measured once a day, over a period of six
+# days. Each day they preformed the same cognitive task The outcome - processing
+# speed (average RT across trials) The purpose of the study: to assess
+# individual differences in short-term learning; individual trajectories for the
+# change in RT across the six occasions.
 
 temp <- tempfile()
 download.file(
@@ -33,7 +29,7 @@ dataset <- dataset |>
   )
 
 
-head(dataset) # this is already in a stacked\long format - cool!
+glimpse(dataset) # this is already in a stacked\long format - cool!
 
 
 ## Understanding the data --------------------
@@ -61,9 +57,7 @@ ggplot(dataset, aes(session, rt, color = PersonID)) +
       N = nlevels(dataset$PersonID)
     )
   )
-
-
-# Which effect do you think you see?
+# Which effect(s) do you think you see? (fixed, random, both?)
 
 # We are interested in the maximal model:
 rt ~ 1 + session + (1 + session | PersonID)
@@ -79,7 +73,12 @@ summary(mod_empty)
 
 
 # The random intercepts model adds... random intercepts to the empty model:
-mod_rndm.intr <- lmer(rt ~ 1 + (1 | PersonID), data = dataset)
+mod_rndm.intr <- lmer(
+  rt ~ 1 + (1 | PersonID),
+  data = dataset,
+
+  REML = TRUE # this is the default
+)
 
 model_parameters(mod_rndm.intr, ci_method = "satterthwaite") # or just ci_method = "s"
 model_parameters(mod_rndm.intr, ci_method = "kenward") # or just ci_method = "kr"

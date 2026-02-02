@@ -1,26 +1,15 @@
-# All tutorial materials were originally developed by Yael Bar-Shachar (no relation).
+library(tidyverse) # For data preparation
 
-### (1) Intro to HLM ###
-
-# For data preparation:
-library(tidyverse)
-
-# For running HLMs:
-library(lmerTest) # Uses {lme4}
+library(lmerTest) # For model fitting (uses {lme4})
 # Additional packages:
 # - {nlme}: more flexible R matrix; limited to simple random structures
 # - {glmmTMB}: more flexible; can be less stable
 # - {brms}: MOST flexible; Bayesian
 
-# For simple slope analysis:
-library(emmeans)
-emm_options(lmer.df = "satterthwaite") # we'll talk about this next week
-
-# For getting ICC and R2:
-library(performance)
-# For tidy parameter tables with CIs
-library(parameters)
+library(performance) # For getting ICC and R2
+library(parameters) # For tidy parameter tables with CIs
 library(merDeriv)
+library(marginaleffects) # For simple slope analysis
 
 
 # Two-occasion data (Ch. 3- Hoffman) -------------------------------------
@@ -37,21 +26,26 @@ unlink(temp)
 
 head(dataset)
 # This data is in the wide format - each row is a person, and we have two
-# columns for the outcome and a column for the group.
-# To model this data in an HLM, we need to convert it to the long format.
+# columns for the outcome and a column for the group. To model this data in an
+# HLM, we need to convert it to the long format.
 
 dataset_long <- dataset |>
+  # rename to avoid conflict with {marginaleffects} later
+  rename(
+    grp = group,
+  ) |>
+  # Cleanup the variables
+  mutate(
+    PersonID = factor(PersonID),
+    grp = factor(grp, levels = c(1, 2), labels = c("G1", "G2")),
+  ) |>
   # Converting data from wide to long\stacked format
   pivot_longer(
     cols = c(outcome1, outcome2),
+    names_pattern = "outcome(\\d+)",
     names_to = "Time",
-    values_to = "outcome"
-  ) |>
-  # We'll cleanup the variable
-  mutate(
-    PersonID = factor(PersonID),
-    group = factor(group, levels = c(1, 2), labels = c("G1", "G2")),
-    Time = ifelse(Time == "outcome1", 0, 1)
+    values_to = "outcome",
+    names_transform = list(Time = parse_number)
   )
 # Note, we "centered" time to the first assessment! -> "T1" is 0.
 # We will talk more about centering in the future... For now, just think of the
@@ -76,15 +70,14 @@ dataset_long |>
 
 # Spaghetti plots- change in outcome by time:
 p_spaghetti <-
-  ggplot(dataset_long, aes(x = Time, y = outcome, color = PersonID)) +
+  ggplot(dataset_long, aes(x = Time, y = outcome, group = PersonID)) +
   # add a line for each ID but don't show use a legend
   geom_point() +
   geom_line() +
-  # add the pattern of the mean slope (linear pattern)
-  stat_smooth(method = "lm", se = FALSE, color = "black", linewidth = 2) +
-  scale_x_continuous(breaks = c(0, 1)) +
-  theme_bw() +
-  guides(color = "none")
+  # Add the pattern of the mean slope (linear pattern)
+  stat_smooth(method = "lm", se = FALSE, group = NULL, linewidth = 2) +
+  scale_x_continuous(breaks = c(1, 2)) +
+  theme_bw()
 
 p_spaghetti
 
@@ -115,14 +108,11 @@ mean(dataset_long$outcome)
 mod_rndm.intr <- lmer(
   outcome ~
     1 +
-    # the syntax start the same for FIXED effects
+    # the syntax start the same for FIXED effects BUT, we will add the RANDOM
+    # effects with Wilkinson's notation:
+    # (varying effect(s) | random grouping variable)
     (1 | PersonID),
-  # BUT, we will add the RANDOM effects with Wilkinson's
-  # notation:
-  # (varying effect\s | random grouping variable)
-  REML = TRUE,
-  # This is default (we can omit this argument), set to
-  # FALSE for ML fitting
+
   data = dataset_long
 )
 
@@ -166,14 +156,14 @@ residuals(mod_rndm.intr) # e_ij
 # Maximal model ---------------------------------------------------------
 # We want an effect for Time, group, and their interaction.
 
-p_spaghetti + facet_grid(cols = vars(group))
+p_spaghetti + facet_grid(cols = vars(grp))
 
 
 # What would be the random effects? Are they all identifiable?
 
 # Since Time is a level 1 predictor, we might want to estimate the heterogeneity
 # of its effect by adding a random slope for it:
-lmer(outcome ~ Time * group + (1 + Time | PersonID), data = dataset_long)
+lmer(outcome ~ Time * grp + (1 + Time | PersonID), data = dataset_long)
 # But we cannot - we don't have enough observations to identify both the level 1
 # variance _and_ the level 2 variance of the effect of time.
 
@@ -181,14 +171,13 @@ lmer(outcome ~ Time * group + (1 + Time | PersonID), data = dataset_long)
 
 # Fitting the mixed model:
 mod_max.mixed <- lmer(
-  outcome ~ Time * group + (1 | PersonID),
-  REML = FALSE, # We'll talk bout this next week
+  outcome ~ Time * grp + (1 | PersonID),
   data = dataset_long
 )
 
 
 # Lets ignore the nested nature of the data, and fit the SAME fixed effects:
-mode_max.fixed <- lm(outcome ~ Time * group, data = dataset_long)
+mode_max.fixed <- lm(outcome ~ Time * grp, data = dataset_long)
 
 
 # We can directly compare the model with sjPlot::tab_model():
@@ -203,7 +192,7 @@ sjPlot::tab_model(
 )
 # The interaction's SE, CIs and p have changed - why?
 # Will adding random effects always increase power? What does this depend on?
-p_spaghetti + facet_grid(cols = vars(group)) # What can we see here?
+p_spaghetti + facet_grid(cols = vars(grp)) # What can we see here?
 
 
 # This model can also be fit with an rmANOVA - and it will be equivalent!
@@ -211,31 +200,51 @@ afex::aov_ez(
   id = "PersonID",
   dv = "outcome",
   data = dataset_long,
-  between = "group",
+  between = "grp",
   within = "Time"
 )
-# Notice that the df and p value for the interaction are nearly identical!
-# (They are NOT the same for Time and group - in the ANOVA they are main effect,
-# in the LMM they are simple effects. We will discuss ANOVA tables for LMMs later
-# in the semester.)
+# Notice that the df and p value for the interaction are nearly identical! (They
+# are NOT the same for Time and grp - in the ANOVA they are main effect, in the
+# LMM they are simple effects. We will discuss ANOVA tables for (G)LMMs later in
+# the semester.)
 
 ## Simple slopes analysis --------------------------
 
 # For significant interaction we would like to test simple slopes...
 
-# If you're not already familiar with the {emmeans} package - it's a great tool
-# for post-hoc/contrasts/simple slope analysis of many types of models in R.
+# If you're not already familiar with the {marginaleffects} package - it's a
+# great tool for post-hoc/contrasts/simple slope analysis of many types of
+# models in R (similar to {emmeans}, which you should also be familiar with).
+(pr <- predictions(
+  mod_max.mixed,
+  # define the new data for which we want predictions
+  newdata = datagrid(
+    Time = c(1, 2),
+    grp = levels
+  ),
+  re.form = NA, # fixef only (no random effects)
+  vcov = "satterthwaite" # we'll discuss this next week
+))
 
-(ems <- emmeans(mod_max.mixed, ~ Time + group)) # Get a "grid" of means
-contrast(ems, method = "revpairwise", by = "group") # conpute contrasts
+# compute contrasts
+hypotheses(pr, hypothesis = ~ pairwise | Time)
 
+# Alternatively:
+comparisons(
+  mod_max.mixed,
+  variables = "grp",
+  newdata = datagrid(Time = c(1, 2)),
+  re.form = NA, # fixef only (no random effects)
+  vcov = "satterthwaite" # we'll discuss this next week
+)
 
 # Since Time is "numeric" we can also extract "slopes" (same result here)
-emtrends(
-  mod_max.mixed, # the model
-  var = "Time", # the focal predictor
-  ~group, # the moderator
-  infer = TRUE
+slopes(
+  mod_max.mixed,
+  variables = "Time",
+  newdata = datagrid(grp = levels),
+  re.form = NA, # fixef only (no random effects)
+  vcov = "satterthwaite" # we'll discuss this next week
 )
 
 

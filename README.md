@@ -6,7 +6,7 @@
 [![](https://img.shields.io/badge/CC-BY--NC%204.0-lightgray)](http://creativecommons.org/licenses/by-nc/4.0/)
 [![](https://img.shields.io/badge/Language-R-blue.png)](http://cran.r-project.org/)
 
-<sub>*Last updated 2026-01-28.*</sub>
+<sub>*Last updated 2026-02-02.*</sub>
 
 This Github repo contains all lesson files for *Hierarchical Linear
 Models in R*. The goal is to impart students with the basic tools to
@@ -43,15 +43,15 @@ You will need:
 
 | Lesson | Packages |
 |:---|:---|
-| [01 HLM Basics](/01%20HLM%20Basics) | `tidyverse`, `lmerTest`, `emmeans`, `performance`, `parameters`, `merDeriv`, `haven`, `sjPlot`, `afex` |
-| [02 Model Comparisons](/02%20Model%20Comparisons) | `dplyr`, `ggplot2`, `lmerTest`, `performance`, `parameters`, `haven`, `scales`, `glue`, `sjPlot`, `bayestestR` |
-| [03 Cross level interactions and effect sizes](/03%20Cross%20level%20interactions%20and%20effect%20sizes) | `dplyr`, `datawizard`, `ggplot2`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `scales` |
-| [04 Growth Models](/04%20Growth%20Models) | `dplyr`, `ggplot2`, `lmerTest`, `parameters`, `performance`, `haven`, `scales`, `glue`, `marginaleffects`, `nlme`, `glmmTMB`, `brms`, `remotes`, `mixedup`, `loo`, `posterior`, `bayestestR` |
-| [05 Within-Person Fluctuation Models](/05%20Within-Person%20Fluctuation%20Models) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `haven` |
+| [01 HLM basics](/01%20HLM%20basics) | `tidyverse`, `lmerTest`, `emmeans`, `performance`, `parameters`, `merDeriv`, `haven`, `sjPlot`, `afex` |
+| [02 model comparisons](/02%20model%20comparisons) | `dplyr`, `ggplot2`, `lmerTest`, `performance`, `parameters`, `haven`, `scales`, `glue`, `sjPlot`, `bayestestR` |
+| [03 cross-level interactions and effect sizes](/03%20cross-level%20interactions%20and%20effect%20sizes) | `dplyr`, `datawizard`, `ggplot2`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `scales` |
+| [04 growth models](/04%20growth%20models) | `dplyr`, `ggplot2`, `lmerTest`, `parameters`, `performance`, `haven`, `scales`, `glue`, `marginaleffects`, `nlme`, `glmmTMB`, `brms`, `remotes`, `mixedup`, `loo`, `posterior`, `bayestestR` |
+| [05 within-person fluctuation models](/05%20within-person%20fluctuation%20models) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `haven` |
 | [06 GLMMs](/06%20GLMMs) | `tidyverse`, `lme4`, `performance`, `parameters`, `marginaleffects`, `haven`, `insight`, `scales` |
-| [07 Multilpe random factors](/07%20Multilpe%20random%20factors) | `dplyr`, `ggplot2`, `patchwork`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `mlmRev`, `forcats` |
+| [07 multilpe random factors](/07%20multilpe%20random%20factors) | `dplyr`, `ggplot2`, `patchwork`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `mlmRev`, `forcats` |
 | [08 ANOVA](/08%20ANOVA) | `dplyr`, `ggplot2`, `lmerTest`, `datawizard`, `emmeans`, `afex`, `car`, `effectsize`, `patchwork`, `performance`, `statmod`, `see`, `brms` |
-| [09 Assumptions](/09%20Assumptions) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `scales` |
+| [09 assumptions](/09%20assumptions) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `scales` |
 
 <details>
 

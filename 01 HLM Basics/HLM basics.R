@@ -115,8 +115,8 @@ mean(dataset_long$outcome)
 mod_rndm.intr <- lmer(
   outcome ~
     1 +
-      # the syntax start the same for FIXED effects
-      (1 | PersonID),
+    # the syntax start the same for FIXED effects
+    (1 | PersonID),
   # BUT, we will add the RANDOM effects with Wilkinson's
   # notation:
   # (varying effect\s | random grouping variable)

@@ -214,8 +214,8 @@ icc(mod_rndm.intr)
 mod_mood <- lmer(
   symptoms ~
     mood_PM_c +
-      mood_WP + # mood new vars as fixed effects
-      (1 | PersonID),
+    mood_WP + # mood new vars as fixed effects
+    (1 | PersonID),
   data = dataset
 )
 
@@ -295,9 +295,9 @@ icc(mod_mood)
 mod_rndm.mood <- lmer(
   symptoms ~
     mood_PM_c +
-      mood_WP +
-      # setting WP mood changes as random + COV with the intercept
-      (mood_WP | PersonID),
+    mood_WP +
+    # setting WP mood changes as random + COV with the intercept
+    (mood_WP | PersonID),
   data = dataset
 )
 

@@ -315,7 +315,7 @@ anova(mod_fixed.poly2, mod_rndm.time)
 mod_rndm.poly2 <- lmer(
   rt ~
     poly(time, 2, raw = TRUE) +
-      (poly(time, 2, raw = TRUE) | PersonID),
+    (poly(time, 2, raw = TRUE) | PersonID),
   data = dataset
 )
 # We get a convergence warning!

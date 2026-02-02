@@ -1,8 +1,5 @@
-##  Cross-level interactions and pseudo R square  ##
-
-library(dplyr)
+library(tidyverse)
 library(datawizard)
-library(ggplot2)
 
 library(lmerTest) # for MLMs
 
@@ -246,6 +243,37 @@ VarCorr(mod_adhd)
 # Therefore, 2.5% of the between-person variance in the neutral condition is
 # accounted for by ADHD symptoms (at least in this data set).
 
+# Let's make a function to compute Pseudo R2 for all variance components (we
+# still need to know which component to look at!):
+r2_pseudo <- function(mf, mr, mnull = mr) {
+  V_table <- function(model) {
+    if (inherits(model, "lm")) {
+      return(tibble(
+        grp = "Residual",
+        var = NA,
+        vcov = sigma(model)^2
+      ))
+    }
+    as_tibble(VarCorr(model)) |>
+      filter(is.na(var2)) |>
+      select(-sdcor, -var2) |>
+      rename(var = var1)
+  }
+  V_full <- V_table(mf)
+  V_restricted <- V_table(mr)
+  V_empty <- V_table(mnull)
+
+  V_full |>
+    inner_join(V_restricted, by = c("grp", "var")) |>
+    inner_join(V_empty, by = c("grp", "var")) |>
+    mutate(
+      r2 = (vcov.y - vcov.x) / vcov,
+    ) |>
+    select(grp, var, r2)
+}
+
+r2_pseudo(mod_adhd, mod_wthn.prsn)
+
 # Compare to:
 r2_nakagawa(mod_adhd)
 
@@ -259,11 +287,11 @@ r2_nakagawa(mod_wthn.prsn)
 # sense when thinking about the fit indices that were not very definitive
 # regarding the improvement in fit vs. number of predictors trade-off (and even
 # supported the previous model).
-
-# These are 3 approaches out of more. As this example illustrates the methods
-# for calculating the explained variance will not converge on the same estimates
-# and this is why it will be important to always describe exactly how any R2
-# values were obtained in reporting your results.
+#
+# These are 3 approaches out of many more. As this example illustrates the
+# methods for calculating the explained variance will not converge on the same
+# estimates and this is why it will be important to always describe exactly how
+# any R2 values were obtained in reporting your results.
 
 ### Pseudo beta ---------------
 
@@ -349,7 +377,7 @@ r2_nakagawa(mod_cli) # total explained variance
 VarCorr(mod_cli)
 VarCorr(mod_adhd)
 
-(PSD_R2_interference <- 1 - (600.27 / 600.45)^2)
+r2_pseudo(mod_cli, mod_adhd)
 # Very little compared to the previous model...
 
 # And Pseudo Std. Coef:
@@ -363,12 +391,14 @@ model_parameters(
 
 ### Follow up analysis --------------
 
-# Just like with linear models, we can conduct followup analyses here too. (Yes,
-# interaction wasn't significant, so we'll explore it just for the sport...).
+# Just like with linear models, we can conduct follow-up analyses here too.
+# (Yes, interaction wasn't significant, so we'll explore it just for the
+# sport...).
 #
 # We've seen how to do these with {emmeans}. We will now use
-# {marginaleffects}... for sport.
-# https://marginaleffects.com/
+# {marginaleffects}... for sport. https://marginaleffects.com/
+
+# Let's look at some pretty plots first:
 
 plot_predictions(
   mod_cli,
@@ -376,6 +406,7 @@ plot_predictions(
   re.form = NA,
   vcov = "satterthwaite"
 ) +
+  # prettfy
   scale_color_brewer(
     breaks = c("Cong", "Neutral", "Incong"),
     labels = c("Congruent", "Neutral", "Incongruent"),
@@ -393,6 +424,7 @@ plot_predictions(
   re.form = NA,
   vcov = "satterthwaite"
 ) +
+  # prettfy
   scale_color_manual(
     "Inattention Symptoms\n[centered]",
     values = c("#28d0d7", "#8924db", "#D72F28"),
@@ -408,13 +440,15 @@ plot_predictions(
 
 #### Simple slopes (Condition as moderator) ------------
 
-# The {marginaleffects} is very powerful and flexible. It has many good defaults, but we will be verbose here
-# so as to better understand what's going on.
+# The {marginaleffects} is very powerful and flexible. It has many good
+# defaults, but we will be verbose here so as to better understand what's going
+# on.
+#
 # To get the estimate(s) of intrest, we need to supply*:
 # - The name of the focal variable (variables=)
-# - Any conditioning variable(s) (by=)
 # - A data grid indicating for which "observations" we want to compute our
 #   estimates (newdata=)
+# - Optionally, any conditioning variable(s) (by=)
 # Additionally, there are other arguments the control how the estimates are
 # computed.
 
@@ -422,19 +456,21 @@ plot_predictions(
 datagrid(
   model = mod_cli, # Based on what data?
 
-  ID = NA, # set to NA to "ignore" the random effects = get population effects
-  Condition = levels # all unique levels
+  Condition = levels, # all levels
+  ID = NA
+  # Since we're generally interested in the fixed effects, we can set to NA to
+  # "ignore" the random effects (=get population effects), or we can set the
+  # re.form argument to NA in the function below.
 )
 
 
 slopes(
   mod_cli,
   variables = "inatten_c",
-  by = "Condition",
-  newdata = datagrid(ID = NA, Condition = levels),
-  # Set this to indicate we're interested in the fixed effects!
-  re.form = NA,
-  vcov = "satterthwaite"
+  newdata = datagrid(Condition = levels),
+
+  re.form = NA, # We're interested in the fixed effects
+  vcov = "satterthwaite" # which df method to use
 )
 # The (n.s.) trends for the between person effects are:
 # - In Neutral and Cong, subjects with *more* inattentive symptoms are slower.
@@ -445,11 +481,10 @@ slopes(
 comparisons(
   mod_cli,
   variables = list("Condition" = "reference"),
-  by = "inatten_c",
-  newdata = datagrid(ID = NA, inatten_c = mean_sd),
-  # Set this to indicate we're interested in the fixed effects!
-  re.form = NA,
-  vcov = "satterthwaite"
+  newdata = datagrid(inatten_c = mean_sd),
+
+  re.form = NA, # We're interested in the fixed effects
+  vcov = "satterthwaite" # which df method to use
 )
 # For low inatten, interference effect is weak.
 # For mean inatten, interference effect is larger.
@@ -464,10 +499,8 @@ comparisons(
 
 # Go back to the RT ~ Condition model. Compute two pseudo R squares.
 # 1. Compare the change in the relevant variance parameter from mod_rndm.intr
-#    to mod_wthn.prsn.
+#    to mod_wthn.prsn (which is it?).
 # 2. Compare the change in the same variance parameter from mod_rndm.intr
 #    to:
-
 mod_wthn.prsn_fixd <- lmer(RT ~ Condition + (1 | ID), data = ADHD_data)
-
 # How do these differ? Interpret both.

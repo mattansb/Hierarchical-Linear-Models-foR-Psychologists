@@ -9,7 +9,8 @@ library(lmerTest) # For model fitting (uses {lme4})
 library(performance) # For getting ICC and R2
 library(parameters) # For tidy parameter tables with CIs
 library(merDeriv)
-library(marginaleffects) # For simple slope analysis
+library(emmeans) # For simple slope analysis
+emm_options(lmer.df = "satterthwaite") # we'll discuss this next week
 
 
 # Two-occasion data (Ch. 3- Hoffman) -------------------------------------
@@ -30,14 +31,10 @@ head(dataset)
 # HLM, we need to convert it to the long format.
 
 dataset_long <- dataset |>
-  # rename to avoid conflict with {marginaleffects} later
-  rename(
-    grp = group,
-  ) |>
   # Cleanup the variables
   mutate(
     PersonID = factor(PersonID),
-    grp = factor(grp, levels = c(1, 2), labels = c("G1", "G2")),
+    group = factor(group, levels = c(1, 2), labels = c("G1", "G2")),
   ) |>
   # Converting data from wide to long\stacked format
   pivot_longer(
@@ -87,10 +84,7 @@ p_spaghetti
 
 ## Empty BP Model:
 #-> simply using lm()
-mod_empty <- lm(
-  outcome ~ 1, # 1 is for including the intercept
-  data = dataset_long
-)
+mod_empty <- lm(outcome ~ 1, data = dataset_long) # ~1 is the intercept only
 summary(mod_empty)
 
 
@@ -156,14 +150,14 @@ residuals(mod_rndm.intr) # e_ij
 # Maximal model ---------------------------------------------------------
 # We want an effect for Time, group, and their interaction.
 
-p_spaghetti + facet_grid(cols = vars(grp))
+p_spaghetti + facet_grid(cols = vars(group))
 
 
 # What would be the random effects? Are they all identifiable?
 
 # Since Time is a level 1 predictor, we might want to estimate the heterogeneity
 # of its effect by adding a random slope for it:
-lmer(outcome ~ Time * grp + (1 + Time | PersonID), data = dataset_long)
+lmer(outcome ~ Time * group + (1 + Time | PersonID), data = dataset_long)
 # But we cannot - we don't have enough observations to identify both the level 1
 # variance _and_ the level 2 variance of the effect of time.
 
@@ -171,13 +165,13 @@ lmer(outcome ~ Time * grp + (1 + Time | PersonID), data = dataset_long)
 
 # Fitting the mixed model:
 mod_max.mixed <- lmer(
-  outcome ~ Time * grp + (1 | PersonID),
+  outcome ~ Time * group + (1 | PersonID),
   data = dataset_long
 )
 
 
 # Lets ignore the nested nature of the data, and fit the SAME fixed effects:
-mode_max.fixed <- lm(outcome ~ Time * grp, data = dataset_long)
+mode_max.fixed <- lm(outcome ~ Time * group, data = dataset_long)
 
 
 # We can directly compare the model with sjPlot::tab_model():
@@ -192,7 +186,7 @@ sjPlot::tab_model(
 )
 # The interaction's SE, CIs and p have changed - why?
 # Will adding random effects always increase power? What does this depend on?
-p_spaghetti + facet_grid(cols = vars(grp)) # What can we see here?
+p_spaghetti + facet_grid(cols = vars(group)) # What can we see here?
 
 
 # This model can also be fit with an rmANOVA - and it will be equivalent!
@@ -200,11 +194,11 @@ afex::aov_ez(
   id = "PersonID",
   dv = "outcome",
   data = dataset_long,
-  between = "grp",
+  between = "group",
   within = "Time"
 )
 # Notice that the df and p value for the interaction are nearly identical! (They
-# are NOT the same for Time and grp - in the ANOVA they are main effect, in the
+# are NOT the same for Time and group - in the ANOVA they are main effect, in the
 # LMM they are simple effects. We will discuss ANOVA tables for (G)LMMs later in
 # the semester.)
 
@@ -212,44 +206,24 @@ afex::aov_ez(
 
 # For significant interaction we would like to test simple slopes...
 
-# If you're not already familiar with the {marginaleffects} package - it's a
-# great tool for post-hoc/contrasts/simple slope analysis of many types of
-# models in R (similar to {emmeans}, which you should also be familiar with).
-(pr <- predictions(
-  mod_max.mixed,
-  # define the new data for which we want predictions
-  newdata = datagrid(
-    Time = c(1, 2),
-    grp = levels
-  ),
-  re.form = NA, # fixef only (no random effects)
-  vcov = "satterthwaite" # we'll discuss this next week
-))
+# If you're not already familiar with the {emmeans} package - it's a great tool
+# for post-hoc/contrasts/simple slope analysis of many types of models in R.
 
-# compute contrasts
-hypotheses(pr, hypothesis = ~ pairwise | Time)
+(ems <- emmeans(mod_max.mixed, ~ Time + group)) # Get a "grid" of means
+contrast(ems, method = "revpairwise", by = "group") # conpute contrasts
 
-# Alternatively:
-comparisons(
-  mod_max.mixed,
-  variables = "grp",
-  newdata = datagrid(Time = c(1, 2)),
-  re.form = NA, # fixef only (no random effects)
-  vcov = "satterthwaite" # we'll discuss this next week
-)
 
 # Since Time is "numeric" we can also extract "slopes" (same result here)
-slopes(
-  mod_max.mixed,
-  variables = "Time",
-  newdata = datagrid(grp = levels),
-  re.form = NA, # fixef only (no random effects)
-  vcov = "satterthwaite" # we'll discuss this next week
+emtrends(
+  mod_max.mixed, # the model
+  var = "Time", # the focal predictor
+  ~group, # the moderator
+  infer = c(TRUE, TRUE)
 )
 
 
-# see how Time effect for group 0 is equal to the effect of time
-# in the main model:
+# See how Time effect for group 0 is equal to the effect of time in the main
+# model:
 model_parameters(mod_max.mixed, ci_method = "S")
 
 

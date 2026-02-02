@@ -43,9 +43,9 @@ You will need:
 
 | Lesson | Packages |
 |:---|:---|
-| [01 HLM basics](/01%20HLM%20basics) | `tidyverse`, `lmerTest`, `performance`, `parameters`, `merDeriv`, `marginaleffects`, `haven`, `sjPlot`, `afex` |
+| [01 HLM basics](/01%20HLM%20basics) | `tidyverse`, `lmerTest`, `performance`, `parameters`, `merDeriv`, `emmeans`, `haven`, `sjPlot`, `afex` |
 | [02 estimation and inference](/02%20estimation%20and%20inference) | `tidyverse`, `lmerTest`, `performance`, `parameters`, `haven`, `scales`, `glue`, `sjPlot`, `bayestestR` |
-| [03 cross-level interactions and effect sizes](/03%20cross-level%20interactions%20and%20effect%20sizes) | `dplyr`, `datawizard`, `ggplot2`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `scales` |
+| [03 cross-level interactions and effect sizes](/03%20cross-level%20interactions%20and%20effect%20sizes) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `scales` |
 | [04 growth models](/04%20growth%20models) | `dplyr`, `ggplot2`, `lmerTest`, `parameters`, `performance`, `haven`, `scales`, `glue`, `marginaleffects`, `nlme`, `glmmTMB`, `brms`, `remotes`, `mixedup`, `loo`, `posterior`, `bayestestR` |
 | [05 within-person fluctuation models](/05%20within-person%20fluctuation%20models) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `haven` |
 | [06 GLMMs](/06%20GLMMs) | `tidyverse`, `lme4`, `performance`, `parameters`, `marginaleffects`, `haven`, `insight`, `scales` |

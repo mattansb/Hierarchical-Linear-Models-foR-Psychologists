@@ -22,7 +22,7 @@ dataset$PersonID <- factor(dataset$PersonID)
 head(dataset)
 
 
-set.seed(42)
+set.seed(20260203)
 dataset |>
   subset(PersonID %in% sample(levels(PersonID), 16)) |>
   ggplot(aes(session, rt)) +
@@ -37,19 +37,22 @@ dataset |>
 mod_sssn.lme <- lme(
   rt ~ session,
   random = ~ session | PersonID,
-  method = "REML",
-  data = dataset
+  data = dataset,
+  method = "REML"
 )
 
 # Or:
 mod_sssn.gTMB <- glmmTMB(
   rt ~ session + (session | PersonID),
-  REML = TRUE,
-  data = dataset
+  data = dataset,
+  REML = TRUE
 )
 
 # Or:
-mod_sssn.brm <- brm(rt ~ session + (session | PersonID), data = dataset)
+mod_sssn.brm <- brm(
+  rt ~ session + (session | PersonID),
+  data = dataset
+)
 # Using default priors - probably a bad idea...
 # (More on Bayesian modelling below.)
 
@@ -59,8 +62,8 @@ mod_sssn.ar1.lme <- lme(
   rt ~ session,
   random = ~ session | PersonID,
   correlation = corAR1(form = ~ session | PersonID),
-  method = "REML",
-  data = dataset
+  data = dataset,
+  method = "REML"
 )
 anova(mod_sssn.ar1.lme, mod_sssn.lme)
 
@@ -74,9 +77,9 @@ mixedup::extract_cor_structure(mod_sssn.ar1.lme) # AR1 parameter
 mod_sssn.ar1.gTMB <- glmmTMB(
   rt ~ session + (session | PersonID) + ar1(0 + factor(session) | PersonID),
   dispformula = ~0,
+  data = dataset,
   REML = TRUE,
-  control = glmmTMBControl(optimizer = optim),
-  data = dataset
+  control = glmmTMBControl(optimizer = optim)
 )
 anova(mod_sssn.ar1.gTMB, mod_sssn.gTMB) # doens't work because the model didn't converge
 

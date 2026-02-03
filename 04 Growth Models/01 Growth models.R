@@ -1,12 +1,11 @@
-## Growth models ##
-
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 
 library(lmerTest)
 
 library(parameters)
 library(performance)
+source("r2_pseudo.R")
+library(marginaleffects)
 
 
 # The data -------------------------------------------------------------------
@@ -45,10 +44,7 @@ dataset |>
 dataset |>
   group_by(session) |>
   summarise(
-    across(
-      rt,
-      .fns = list(length = length, mean = mean, sd = sd, min = min, max = max)
-    )
+    across(.cols = rt, .fns = mean)
   )
 
 # Over time, the means appear to decrease (i.e., RT improves across sessions),
@@ -211,7 +207,7 @@ r2(mod_fixef.time)
 
 VarCorr(mod_rndm.intr)
 VarCorr(mod_fixef.time)
-1 - (188.84 / 211.9)^2
+r2_pseudo(mod_fixef.time, mod_rndm.intr)[2, ] # same function from last lesson
 
 
 ## Random slopes for time ---------------------------------------
@@ -319,8 +315,8 @@ mod_rndm.poly2 <- lmer(
   data = dataset
 )
 # We get a convergence warning!
-# Convergance issues indicate that the model failed to properly estimate its
-# parameters - therfore the model's estimates cannot be trusted!
+# Convergence issues indicate that the model failed to properly estimate its
+# parameters - therefore the model's estimates cannot be trusted!
 # However - {lme4} is quite conservative in issuing convergence warnings, and
 # sometimes they can be ignored. We can check convergence with a more lenient
 # criterion using the {performance} package:
@@ -341,8 +337,6 @@ VarCorr(mod_rndm.poly2)
 # To see the PREDICTED intercepts and PREDICTED slopes
 # (not the one's observed in the data)
 
-library(marginaleffects)
-
 plot_predictions(
   mod_rndm.poly2,
   condition = "time",
@@ -356,7 +350,7 @@ plot_predictions(
 # Simple intercepts in each time point (with CI)
 predictions(
   mod_rndm.poly2,
-  newdata = datagrid(PersonID = NA, time = 0:5),
+  newdata = datagrid(time = 0:5),
   re.form = NA,
   vcov = "satterthwaite"
 )
@@ -365,16 +359,15 @@ predictions(
 slopes(
   mod_rndm.poly2,
   variables = "time",
-  newdata = datagrid(PersonID = NA, time = 0:5),
+  newdata = datagrid(time = 0:5),
   re.form = NA,
   vcov = "satterthwaite"
 )
-
-
 # The linear rate of change is significantly negative through session 4, but by
-# session 5 it is nonsignificantly negative (and is nonsignificantly positive at
-# session 6). Thus, the improvement predicted by the quadratic model appears to
-# ?shut off? after session 4.
+# session 5 it is non-significantly negative (and is non-significantly positive
+# at session 6). Thus, the improvement predicted by the quadratic model appears
+# to have reached its limit by session 5, and the predicted trajectory appears
+# to plateau by session 6.
 
 # Exercise ----------------------------------------------------------------
 
@@ -385,10 +378,10 @@ unlink(temp)
 
 # this data is from Bolger and Laurenceau (2013), chapter 4. It's simulated data
 # that is intended to represent a study of wives from 50 heterosexual married
-# couples, randomly assigned to a 16-week marital therapy treatment condition
-# (n = 25) or a 16-week wait-list condition (n = 25). In both groups
-# participants completed web diary on a fixed day each week for 15 time points.
-# One questionnaire in this survey measured intimacy.
+# couples, randomly assigned to a 16-week marital therapy treatment condition (n
+# = 25) or a 16-week wait-list condition (n = 25). In both groups participants
+# completed web diary on a fixed day each week for 15 time points. One
+# questionnaire in this survey measured intimacy.
 
 head(dataex)
 

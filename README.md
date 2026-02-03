@@ -6,7 +6,7 @@
 [![](https://img.shields.io/badge/CC-BY--NC%204.0-lightgray)](http://creativecommons.org/licenses/by-nc/4.0/)
 [![](https://img.shields.io/badge/Language-R-blue.png)](http://cran.r-project.org/)
 
-<sub>*Last updated 2026-02-02.*</sub>
+<sub>*Last updated 2026-02-03.*</sub>
 
 This Github repo contains all lesson files for *Hierarchical Linear
 Models in R*. The goal is to impart students with the basic tools to
@@ -51,7 +51,7 @@ You will need:
 | [06 GLMMs](/06%20GLMMs) | `tidyverse`, `lme4`, `performance`, `parameters`, `marginaleffects`, `haven`, `insight`, `scales` |
 | [07 multilpe random factors](/07%20multilpe%20random%20factors) | `dplyr`, `ggplot2`, `patchwork`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `mlmRev`, `forcats` |
 | [08 ANOVA](/08%20ANOVA) | `dplyr`, `ggplot2`, `lmerTest`, `datawizard`, `emmeans`, `afex`, `car`, `effectsize`, `patchwork`, `performance`, `statmod`, `see`, `brms` |
-| [09 assumptions](/09%20assumptions) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `scales` |
+| [09 misc](/09%20misc) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `scales` |
 
 <details>
 

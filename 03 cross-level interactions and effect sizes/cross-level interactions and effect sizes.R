@@ -247,18 +247,12 @@ VarCorr(mod_adhd)
 # still need to know which component to look at!):
 r2_pseudo <- function(mf, mr, mnull = mr) {
   V_table <- function(model) {
-    if (inherits(model, "lm")) {
-      return(tibble(
-        grp = "Residual",
-        var = NA,
-        vcov = sigma(model)^2
-      ))
-    }
     as_tibble(VarCorr(model)) |>
       filter(is.na(var2)) |>
       select(-sdcor, -var2) |>
       rename(var = var1)
   }
+
   V_full <- V_table(mf)
   V_restricted <- V_table(mr)
   V_empty <- V_table(mnull)

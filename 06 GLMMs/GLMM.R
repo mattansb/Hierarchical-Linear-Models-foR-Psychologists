@@ -18,7 +18,7 @@ source(
 SFON_data <- haven::read_sav("SFON.sav") |>
   mutate(
     ID = factor(ID),
-    Task = factor(Task, labels = c("Bird", "Truck"))
+    Task = as_factor(Task)
   )
 
 # This data was collected from 46 children aged 3-5.
@@ -141,8 +141,23 @@ plot_predictions(mod_age, condition = "Age", re.form = NULL, rug = TRUE) +
 # values of Age.
 avg_slopes(mod_age, variables = "Age", re.form = NULL)
 # Age had a positive effect on attending, with the probability of attending
-# increasing on average of each year of age by 45 percentage points, 95% CI [19,
-# 72], z = 3.36, p < .001.
+# increasing on average for each year of age by 45 percentage points, 95% CI
+# [19, 72], z = 3.36, p < .001.
+
+# Or we can get the average odds ratio:
+avg_comparisons(
+  mod_age,
+  variables = "Age",
+  comparison = "lnor",
+  transform = "exp"
+)
+# Age had a positive effect on attending, with the odds of attending
+# increasing on average for each year of age by a factor of 11.2, 95% CI
+# [1.89, 66.4], z = 2.66, p = .008.
+
+# Why doesn't this match the model_parameters() output?
+# Because ORs are cursed with non-collapsibility:
+# https://doi.org/10.1093/aje/kwaa267
 
 # Exercise ---------------------------------------------------------------
 

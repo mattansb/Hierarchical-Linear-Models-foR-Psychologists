@@ -1,5 +1,3 @@
-## Tutorial - Time-varing\longitudinal\dynamic\measured-level-1 predictors ##
-
 library(tidyverse)
 library(datawizard)
 
@@ -7,6 +5,11 @@ library(lmerTest)
 
 library(performance)
 library(parameters)
+
+# load r2_pseudo function
+source(
+  "https://github.com/mattansb/Hierarchical-Linear-Models-foR-Psychologists/raw/refs/heads/main/helpers.R"
+)
 
 
 # The data -------------------------------------------------------------------
@@ -25,6 +28,7 @@ unlink(temp)
 # study also collected a variety of other measures (of physical, cognitive, and
 # emotional well-being). Because of concerns about initial reactivity to the
 # assessments, only sessions 2 to 6 (i.e. 5 obs.) will be used.
+#
 # The outcome 'symptoms': the number of physical symptoms participants reported
 # experiencing in the past 24 hours.
 
@@ -59,15 +63,10 @@ dataset |>
 # as we do in GLM: i.e, treating factors correctly (e.g. dummy coded) and
 # centering continuous variables around the sample's mean.
 
-# women (gender) is a binary variable:
-# 0- man; 1- women
-# (can be left as is, or centered such that 0 will be genders' mean).
-dataset$women
-
-
 dataset <- dataset |>
   mutate(
     gender = factor(women, labels = c("man", "woman")),
+    stressor = factor(stressor, labels = c("no", "yes")),
     # age can be centered to the sample's mean (=grand mean)
     baseage_gmc = center(baseage)
   ) |>
@@ -97,8 +96,7 @@ dataset <- dataset |>
 # How much of a time-varying predictor's variation is due to each source?
 # -> treat the time-varying predictor as an outcome and use an empty random
 #    model to quantify ICC:
-lmer(mood ~ 1 + (1 | PersonID), data = dataset) |>
-  icc()
+lmer(mood ~ 1 + (1 | PersonID), data = dataset) |> icc()
 # Here, 35.5% of mood's variance was due to between-person (mean) differences.
 # ICC size dictates which effects the time-varying predictor potentially show.
 # -> If there is substantial between-person variance then that between-person
@@ -257,12 +255,8 @@ VarCorr(mod_mood)
 #           Intercept sd = 0.95594
 
 # How much variance between people in symptoms is explained by mean mood?
-1 - (0.95594 / 1.10872)^2
-# 25%!
-
 # How much variance within people in symptoms is explained by wp mood?
-1 - (0.78671 / 0.78665)^2
-# ~0%
+r2_pseudo(mod_mood, mod_rndm.intr)
 
 #### R2 nakagawa -----------------
 r2_nakagawa(mod_mood)

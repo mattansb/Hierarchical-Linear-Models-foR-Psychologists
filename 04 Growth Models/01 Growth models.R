@@ -4,8 +4,12 @@ library(lmerTest)
 
 library(parameters)
 library(performance)
-source("r2_pseudo.R")
 library(marginaleffects)
+
+# load r2_pseudo function
+source(
+  "https://github.com/mattansb/Hierarchical-Linear-Models-foR-Psychologists/raw/refs/heads/main/helpers.R"
+)
 
 
 # The data -------------------------------------------------------------------

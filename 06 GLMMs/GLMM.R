@@ -6,6 +6,12 @@ library(performance)
 library(parameters)
 library(marginaleffects)
 
+# load r2_pseudo function
+source(
+  "https://github.com/mattansb/Hierarchical-Linear-Models-foR-Psychologists/raw/refs/heads/main/helpers.R"
+)
+
+
 # The data --------------------------------------------------------------
 
 # Data from https://doi.org/10.31234/osf.io/mt3n9
@@ -48,7 +54,7 @@ ggplot(SFON_data, aes(weberFr, Attend)) +
 # Looks like a negative trend - how can we model this?
 
 # Learn more about GLMs here:
-# https://github.com/mattansb/Practical-Applications-in-R-for-Psychologists/tree/master/08%20generalized%20linear%20models
+# https://github.com/mattansb/Practical-Applications-in-R-for-Psychologists/blob/master/11%20generalized%20linear%20models
 
 # Random Intercepts Model -----------------------------------------------------
 
@@ -72,12 +78,19 @@ plogis(-1.54)
 mean(SFON_data$Attend)
 
 # We can get the unbiased estimate with {marginaleffects}:
-avg_predictions(mod_rndm.intr, newdata = datagrid(ID = NA), re.form = NA) # "generalized" means
+# "generalized" means:
 avg_predictions(
   mod_rndm.intr,
-  newdata = datagrid(ID = unique), # We *want* the random effects
+  newdata = datagrid(),
+  re.form = NA
+)
+# vs. actual means:
+avg_predictions(
+  mod_rndm.intr,
+  # We *want* the random effects
+  newdata = datagrid(ID = unique),
   re.form = NULL
-) # means
+)
 
 # Does this matter? Depends on what you're doing. The biased estimates are
 # sometimes called *generalized means*, and those are sometimes fine. See:
@@ -105,8 +118,8 @@ anova(mod_age, mod_rndm.intr) # We can see the Age is a significant predictor.
 VarCorr(mod_rndm.intr)
 VarCorr(mod_age)
 
-1 - (2.6068 / 2.8961)^2
-# Age explains 19% of the variance between children in their tandancy to attend
+r2_pseudo(mod_age, mod_rndm.intr)[1, ]
+# Age explains 19% of the variance between children in their tendency to attend
 # quantitative properties.
 
 model_parameters(mod_age, exponentiate = TRUE)
@@ -116,7 +129,7 @@ model_parameters(mod_age, exponentiate = TRUE)
 # 3.04, p = .002.
 
 # Or se can get average marginal slopes.
-plot_predictions(mod_age, condition = "Age", re.form = NULL) +
+plot_predictions(mod_age, condition = "Age", re.form = NULL, rug = TRUE) +
   scale_y_continuous(
     expression(Pr(Attend)),
     limits = c(0, 1),

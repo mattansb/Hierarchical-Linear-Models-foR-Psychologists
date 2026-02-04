@@ -36,7 +36,16 @@ r2_pseudo <- function(mf, mr, mnull = mr) {
     dplyr::rename(var = var1)
 }
 
-.V_table.glmerMod <- .V_table.lmerMod
+.V_table.glmerMod <- function(model) {
+  res <- tibble::tibble(
+    grp = "Residual",
+    var = NA,
+    vcov = sigma(model)^2
+  )
+
+  .V_table.lmerMod(model) |>
+    dplyr::bind_rows(res)
+}
 
 .V_table.stanreg <- .V_table.lmerMod
 

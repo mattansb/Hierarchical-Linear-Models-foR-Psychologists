@@ -1,11 +1,9 @@
 library(ggplot2)
 
-library(nlme)
-library(glmmTMB)
-library(brms) # Bayesian
+# pak::pak("lme4/lme4") # requires dev version of lme4
+library(lme4)
 
 library(parameters)
-# remotes::install_github('m-clark/mixedup')
 
 # Data ----------------------------------------------------------------
 
@@ -19,91 +17,89 @@ unlink(temp)
 
 
 dataset$PersonID <- factor(dataset$PersonID)
-head(dataset)
+head(dataset, n = 6)
 
 
 set.seed(20260203)
 dataset |>
+  # Sample 16 random participants to make the plot more readable:
   subset(PersonID %in% sample(levels(PersonID), 16)) |>
   ggplot(aes(session, rt)) +
   geom_point() +
   stat_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~PersonID, scales = "free") +
+  facet_wrap(facets = vars(PersonID), scales = "free_y") +
   theme_classic()
 # Can you spot the auto-correlation? Is it positive or negative?
 
 # Standard model --------------------------------------------------
 
-mod_sssn.lme <- lme(
-  rt ~ session,
-  random = ~ session | PersonID,
-  data = dataset,
-  method = "REML"
-)
-
-# Or:
-mod_sssn.gTMB <- glmmTMB(
-  rt ~ session + (session | PersonID),
-  data = dataset,
-  REML = TRUE
-)
-
-# Or:
-mod_sssn.brm <- brm(
+mod_sssn <- lmer(
   rt ~ session + (session | PersonID),
   data = dataset
 )
-# Using default priors - probably a bad idea...
-# (More on Bayesian modelling below.)
+# Each participant has their own intercept and slope, but the residuals are
+# assumed to be independent. Is this a good assumption? Probably not, given the
+# plot above.
 
 # AR1 Autocorrelation ---------------------------------------------------
 
-mod_sssn.ar1.lme <- lme(
-  rt ~ session,
-  random = ~ session | PersonID,
-  correlation = corAR1(form = ~ session | PersonID),
-  data = dataset,
-  method = "REML"
+# https://cran.r-project.org/web/packages/lme4/vignettes/covariance_structures.html
+mod_sssn.ar1 <- lmer(
+  rt ~ session +
+    (session | PersonID) +
+    # We ADD an AR1 correlation structure to the residuals.
+    ar1(0 + factor(session) | PersonID, hom = TRUE),
+  data = dataset
 )
-anova(mod_sssn.ar1.lme, mod_sssn.lme)
+# > (0 +              We don't want to estimate another intercept
+# >  factor(session), Time is discrete
+# >  hom = TRUE)      We assume the variance is equal across sessions
 
-model_parameters(mod_sssn.ar1.lme)
-mixedup::extract_cor_structure(mod_sssn.ar1.lme) # AR1 parameter
+anova(mod_sssn.ar1, mod_sssn, refit = FALSE)
+# The AR1 model is a better fit to the data!
+
+# Let's look at the AR1 parameter:
+VarCorr(mod_sssn.ar1)
 # Positive := residuals tend to be similar session-to-session.
 # (See if you can see it in the plot)
 
-# OR
+# Other packages ----------------------------------------------------------
+
+# --- nlme ---
+# This is an older package, but it has a lot of functionality for modelling
+# different types of autocorrelation.
+nlme::lme(
+  rt ~ session,
+  random = ~ session | PersonID,
+  correlation = nlme::corAR1(form = ~ session | PersonID),
+  data = dataset
+)
+
+# --- glmmTMB ---
+# This is a newer package, which has a lot of functionality for modelling
+# different types of autocorrelation, and many many types of generalized models
+# (more on those in a later lesson). My experience is that it is more difficult
+# to get models to converge than with lme4, but it is also more flexible in the
+# types of models you can fit.
 # https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html
-mod_sssn.ar1.gTMB <- glmmTMB(
+glmmTMB::glmmTMB(
   rt ~ session + (session | PersonID) + ar1(0 + factor(session) | PersonID),
   dispformula = ~0,
   data = dataset,
   REML = TRUE,
-  control = glmmTMBControl(optimizer = optim)
+  control = glmmTMB::glmmTMBControl(optimizer = optim)
 )
-anova(mod_sssn.ar1.gTMB, mod_sssn.gTMB) # doens't work because the model didn't converge
+# (In this example the model doesn't converge...)
 
-model_parameters(mod_sssn.ar1.gTMB)
-mixedup::extract_cor_structure(mod_sssn.ar1.gTMB, which_cor = "ar1") # AR1 parameter
-
-
-# OR...
+# --- brms ---
+# This is currently the strongest modeling package in R with the most features,
+# and so it is unsurprising that it is a Bayesian modelling package. It is a
+# wrapper around the Bayesian modelling language Stan.
 # https://paulbuerkner.com/brms/reference/autocor-terms.html
-mod_sssn.ar1.brm <- brm(
+brms::brm(
   rt ~ session + (session | PersonID) + ar(session, gr = PersonID),
   data = dataset
 )
-# Again using default priors - probably a bad idea...
-loo::loo_compare(loo::loo(mod_sssn.ar1.brm), loo::loo(mod_sssn.brm)) |>
-  print(simplify = FALSE)
-
-mod_sssn.ar1.brm
-posterior::as_draws_rvars(mod_sssn.ar1.brm)$ar |>
-  bayestestR::describe_posterior(test = NULL)
-
-# We can see here that Bayesian modelling gives us a slightly different (weaker)
-# estimate of the AR1 parameter, and that the model _without_ the AR1 parameter
-# is preferred.
-# This is a very rough example - Bayesian modelling requires careful thought and
-# planning. But we can see that the ideas, in the context of multilevel
+# Using default priors - probably a bad idea... Bayesian modelling requires
+# careful thought and planning. But the ideas in the context of multilevel
 # modeling, are the same.

@@ -159,6 +159,23 @@ avg_comparisons(
 # Because ORs are cursed with non-collapsibility:
 # https://doi.org/10.1093/aje/kwaa267
 
+# More families (distributions + link functions) -----------------------------
+
+# glmer() naturally supports all the native families in R: poisson, binomial,
+# Gamma, inverse.gaussian, etc.
+?family
+# For negative binomial models you would need a separate function, but it works
+# similarly to what we've done so far:
+?glmer.nb
+
+# More complex models -- such as zero-inflated, hurdle, and other more complex
+# models, including heteroscedastic gaussian models -- require more complex modelling
+# packages.
+# - The frequentist option: {glmmTMB}
+?glmmTMB::nbinom2
+# - The Bayesian option: {brms}
+?brms::brmsfamily
+
 # Exercise ---------------------------------------------------------------
 
 # Fit a conditional model with a fixed effect for weberFr (on top of Age).

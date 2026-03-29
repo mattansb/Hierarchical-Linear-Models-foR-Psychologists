@@ -98,7 +98,7 @@ avg_predictions(
 
 # - What is the ICC?
 icc(mod_rndm.intr)
-# Note that logistic models don't have "error variance". Instead. level 1
+# Note that logistic models don't have "error variance". Instead level 1
 # variance is fixed at (pi^2)/3
 insight::get_variance_residual(mod_rndm.intr)
 

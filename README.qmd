@@ -93,6 +93,9 @@ You can install all the R packages used by running:
 ```{r}
 r_pkgs <- r_pkgs |>
   unlist(recursive = TRUE) |>
+  c(extract_pkgs("helpers.R"), "tidyverse", "easystats") |>
+  setdiff(tidyverse::tidyverse_packages()) |>
+  setdiff(easystats::easystats_packages()) |>
   unique() |> sort()
 
 packinfo <- installed.packages(fields = c("Package", "Version"))

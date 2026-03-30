@@ -6,7 +6,7 @@
 [![](https://img.shields.io/badge/CC-BY--NC%204.0-lightgray)](http://creativecommons.org/licenses/by-nc/4.0/)
 [![](https://img.shields.io/badge/Language-R-blue.png)](http://cran.r-project.org/)
 
-<sub>*Last updated 2026-02-04.*</sub>
+<sub>*Last updated 2026-03-30.*</sub>
 
 This Github repo contains all lesson files for *Hierarchical Linear
 Models in R*. The goal is to impart students with the basic tools to
@@ -46,12 +46,12 @@ You will need:
 | [01 HLM basics](/01%20HLM%20basics) | `tidyverse`, `lmerTest`, `performance`, `parameters`, `merDeriv`, `emmeans`, `haven`, `sjPlot`, `afex` |
 | [02 estimation and inference](/02%20estimation%20and%20inference) | `tidyverse`, `lmerTest`, `performance`, `parameters`, `haven`, `scales`, `glue`, `sjPlot`, `bayestestR` |
 | [03 cross-level interactions and effect sizes](/03%20cross-level%20interactions%20and%20effect%20sizes) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `scales` |
-| [04 growth models](/04%20growth%20models) | `tidyverse`, `lmerTest`, `parameters`, `performance`, `marginaleffects`, `haven`, `scales`, `glue`, `ggplot2`, `nlme`, `glmmTMB`, `brms`, `remotes`, `mixedup`, `loo`, `posterior`, `bayestestR` |
+| [04 growth models](/04%20growth%20models) | `tidyverse`, `lmerTest`, `parameters`, `performance`, `marginaleffects`, `haven`, `scales`, `glue`, `ggplot2`, `pak`, `lme4`, `parameters`, `haven`, `nlme`, `glmmTMB`, `brms` |
 | [05 within-person fluctuation models](/05%20within-person%20fluctuation%20models) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `haven` |
-| [06 GLMMs](/06%20GLMMs) | `tidyverse`, `lme4`, `performance`, `parameters`, `marginaleffects`, `haven`, `insight`, `scales` |
-| [07 multilpe random factors](/07%20multilpe%20random%20factors) | `dplyr`, `ggplot2`, `patchwork`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `mlmRev`, `forcats` |
-| [08 ANOVA](/08%20ANOVA) | `dplyr`, `ggplot2`, `lmerTest`, `datawizard`, `emmeans`, `afex`, `car`, `effectsize`, `patchwork`, `performance`, `statmod`, `see`, `brms` |
-| [09 misc](/09%20misc) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `scales` |
+| [06 GLMMs](/06%20GLMMs) | `tidyverse`, `lme4`, `performance`, `parameters`, `marginaleffects`, `haven`, `insight`, `scales`, `glmmTMB`, `brms` |
+| [07 multilpe random factors](/07%20multilpe%20random%20factors) | `tidyverse`, `patchwork`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `mlmRev`, `forcats` |
+| [08 ANOVA](/08%20ANOVA) | `tidyverse`, `datawizard`, `lmerTest`, `emmeans`, `afex`, `car`, `effectsize`, `patchwork`, `performance`, `statmod`, `see` |
+| [09 misc](/09%20misc) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `scales`, `brms`, `dplyr`, `afex`, `parameters`, `rstanarm` |
 
 <details>
 
@@ -69,37 +69,23 @@ You can install all the R packages used by running:
 
         "cran::DHARMa", # 0.4.7
         "cran::afex", # 1.5-1
-        "bayestestR", # 0.17.0.2
         "cran::brms", # 2.23.0
-        "cran::car", # 3.1-3
-        "datawizard", # 1.3.0
-        "cran::dplyr", # 1.1.4
-        "effectsize", # 1.0.1.2
-        "cran::emmeans", # 2.0.1
-        "cran::forcats", # 1.0.1
-        "cran::ggplot2", # 4.0.1
+        "cran::car", # 3.1-5
+        "cran::emmeans", # 2.0.2
         "cran::glmmTMB", # 1.1.14
         "cran::glue", # 1.8.0
-        "cran::haven", # 2.5.5
-        "insight", # 1.4.4.3
-        "cran::lme4", # 1.1-38
-        "cran::lmerTest", # 3.2-0
-        "cran::loo", # 2.9.0
-        "cran::marginaleffects", # 0.31.0
+        "github::lme4/lme4", # 2.0-2
+        "cran::lmerTest", # 3.2-1
+        "cran::marginaleffects", # 0.32.0
         "cran::merDeriv", # 0.2-5
-        "github::m-clark/mixedup", # 0.4.0
         "cran::mlmRev", # 1.0-8
         "cran::nlme", # 3.1-168
-        "parameters", # 0.28.3
+        "cran::pak", # 0.9.2
         "cran::patchwork", # 1.3.2
-        "cran::performance", # 0.15.3
-        "cran::posterior", # 1.6.1
-        "cran::remotes", # 2.5.0
+        "cran::rstanarm", # 2.32.2
         "cran::scales", # 1.4.0
-        "cran::see", # 0.12.0
         "cran::sjPlot", # 2.9.0
-        "cran::statmod", # 1.5.1
-        "cran::tidyverse" # 2.0.0
+        "cran::statmod" # 1.5.1
 
       )
     )

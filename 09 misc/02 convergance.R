@@ -86,13 +86,6 @@ glmer(
 )
 # This doesn't work...
 
-glmer(
-  I(rt * 1000) ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1
-)
-# But this does...
-
 # It can also mean using complex random intercepts (CRI), per Scandola & Tidoni
 # (2024) https://doi.org/10.1177/25152459231214454
 #

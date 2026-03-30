@@ -71,6 +71,7 @@ You can install all the R packages used by running:
         "cran::afex", # 1.5-1
         "cran::brms", # 2.23.0
         "cran::car", # 3.1-5
+        "cran::easystats", # 0.7.5
         "cran::emmeans", # 2.0.2
         "cran::glmmTMB", # 1.1.14
         "cran::glue", # 1.8.0
@@ -85,7 +86,8 @@ You can install all the R packages used by running:
         "cran::rstanarm", # 2.32.2
         "cran::scales", # 1.4.0
         "cran::sjPlot", # 2.9.0
-        "cran::statmod" # 1.5.1
+        "cran::statmod", # 1.5.1
+        "cran::tidyverse" # 2.0.0
 
       )
     )

@@ -1,5 +1,4 @@
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 library(patchwork)
 
 library(lmerTest)
@@ -7,6 +6,12 @@ library(lmerTest)
 library(performance)
 library(parameters)
 library(marginaleffects)
+
+# load r2_pseudo function
+source(
+  "https://github.com/mattansb/Hierarchical-Linear-Models-foR-Psychologists/raw/refs/heads/main/helpers.R"
+)
+
 
 # The data ----------------------------------------------------------------
 
@@ -57,17 +62,26 @@ icc(mod_rndm.intr, by_group = TRUE) # stability within Child (within school) and
 ranova(mod_rndm.intr)
 # We can see that both random intercept terms are significant and substantial.
 
-set.seed(42)
+set.seed(20260330)
 egsingle |>
-  mutate(
-    childid = forcats::fct_reorder(childid, math)
-  ) |>
   filter(schoolid %in% sample(levels(schoolid), 12)) |>
+  mutate(
+    childid = forcats::fct_reorder(childid, math, .fun = mean),
+    schoolid = forcats::fct_reorder(schoolid, math, .fun = mean)
+  ) |>
   ggplot(aes(childid, math)) +
-  facet_wrap(facets = vars(schoolid), scales = "free_x") +
-  geom_point() +
+  facet_wrap(facets = vars(schoolid), scales = "free_x", nrow = 2) +
+  stat_summary(
+    aes(x = NA, yintercept = after_stat(y), color = "School"),
+    fun = "mean",
+    geom = "hline",
+    linewidth = 1
+  ) +
+  geom_point(alpha = 0.8, shape = 16) +
+  stat_summary(aes(color = "Child"), fun = "mean", geom = "point", size = 2) +
   labs(x = "Child Within School", y = "Math") +
-  theme_classic() +
+  theme_bw() +
+  scale_color_brewer("Mean", type = "qual", palette = 2) +
   theme(
     strip.background = element_blank(),
     strip.text = element_blank(),
@@ -133,9 +147,11 @@ anova(mod_grade, mod_rndm.intr)
 # Not surprisingly, the growth model is supported.
 
 # Which variance component is explained by this linear growth?
-# How would be compute the relevant pseudo-R2?
+# How would we compute the relevant pseudo-R2?
 VarCorr(mod_rndm.intr)
 VarCorr(mod_grade)
+
+r2_pseudo(mod_grade, mod_rndm.intr)[3, ]
 
 
 model_parameters(mod_grade, ci_method = "S")
@@ -167,8 +183,9 @@ check_convergence(mod_rndm.grade2) # LGTM
 
 VarCorr(mod_rndm.grade)
 VarCorr(mod_rndm.grade2)
-# We can see that the child-level variance in the growth slope has reduced:
-1 - (0.040318 / 0.12190)^2
+# We can see that the child-level variance in the growth slope has reduced.
+
+r2_pseudo(mod_rndm.grade2, mod_rndm.grade)[2, ]
 # 89% of the variance between how children differ in their growth can be
 # attributed to different schools showing different growth.
 
@@ -229,7 +246,8 @@ slopes(
 # explained by lowinc (pseudo-R2).
 VarCorr(mod_lowinc)
 VarCorr(mod_rndm.grade2)
-1 - (0.108592 / 0.114115)^2
+r2_pseudo(mod_lowinc, mod_rndm.grade2)[4, ]
+
 # 9% of the variance in the growth is explained by lowinc!
 
 # Questions ----------------------------------------------------------------

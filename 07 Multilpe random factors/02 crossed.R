@@ -1,10 +1,15 @@
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
+library(patchwork)
 
 library(lmerTest)
 
 library(performance)
 library(parameters)
+
+# load r2_pseudo function
+source(
+  "https://github.com/mattansb/Hierarchical-Linear-Models-foR-Psychologists/raw/refs/heads/main/helpers.R"
+)
 
 # The data ----------------------------------------------------------------
 
@@ -16,8 +21,7 @@ head(order_data)
 
 order_data_correct <- order_data |>
   # Drop subjects that didn't understand the task
-  group_by(Subject) |>
-  filter(mean(acc[Condition == "partial rep"]) > 0.6) |>
+  filter(mean(acc[Condition == "partial rep"]) > 0.6, .by = Subject) |>
   # Keep only correct trials
   filter(acc == 1) |>
   select(-acc) |>
@@ -37,8 +41,10 @@ order_data_correct <- order_data |>
 # The variables:
 head(order_data_correct)
 #   Subject - Subject ID
+nlevels(order_data_correct$Subject)
 #       Sex - sex of the Subject
 #      Stim - stimulus ID (number of dots in the left, middle and right circles)
+nlevels(order_data_correct$Stim)
 # Condition - what type of stimulus is it?
 #       acc - was the response correct?
 #        rt - reaction time
@@ -47,15 +53,14 @@ head(order_data_correct)
 
 # The outcome is "rt".
 # What is the random grouping variable(s)? Why? What is the relationship between
-# them? What level are the other variables on? School (3)? Person (2)?
-# Measurement (1)?
+# them? What level are the other variables on?
 
 order_data_correct |>
   filter(Subject == "402")
 
 order_data_correct |>
   filter(Stim == "L1.M2.R4") |>
-  print(n = 20)
+  head(n = 20)
 
 
 # The research questions: Does the order (or lack thereof) of the dots
@@ -76,6 +81,30 @@ icc(mod_rndm.intr, by_group = TRUE) # ICC for each group
 
 ranova(mod_rndm.intr) # Both are significant
 
+# What does this look like?
+p_subject <- order_data_correct |>
+  mutate(
+    Subject = forcats::fct_reorder(Subject, rt, .fun = mean)
+  ) |>
+  ggplot(aes(Subject, rt)) +
+  geom_point(alpha = 0.4, shape = 16) +
+  stat_summary(geom = "point", fun = "mean", color = "red", size = 2) +
+  theme_bw() +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_blank(),
+    axis.text.x = element_blank()
+  )
+
+p_stim <- p_subject +
+  aes(x = Stim) +
+  (order_data_correct |>
+    mutate(
+      Stim = forcats::fct_reorder(Stim, rt, .fun = mean)
+    ))
+
+p_subject + p_stim + plot_layout(widths = c(2, 3))
+
 
 # Condition effect -----------------------
 
@@ -89,7 +118,7 @@ mod_fix.cond <- lmer(
 VarCorr(mod_rndm.intr)
 VarCorr(mod_fix.cond)
 
-1 - (127.35 / 123.08)^2
+r2_pseudo(mod_fix.cond, mod_rndm.intr)[1, ]
 # Accounting for ~0% of the variance in the time it take to respond to them.
 
 anova(mod_fix.cond, mod_rndm.intr)

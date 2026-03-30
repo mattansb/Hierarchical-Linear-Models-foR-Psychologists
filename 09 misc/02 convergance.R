@@ -44,7 +44,7 @@ lmerControl(calc.derivs = FALSE)
 glmerControl(calc.derivs = FALSE)
 
 
-glmer(
+mod_no.derivs <- glmer(
   rt ~ condition * congruency + (condition * congruency | pno),
   family = inverse.gaussian(link = "identity"),
   data = stroop_1,
@@ -60,14 +60,14 @@ glmer(
 lmerControl("bobyqa")
 glmerControl("bobyqa")
 
-mod2 <- glmer(
+mod_change.optim <- glmer(
   rt ~ condition * congruency + (condition * congruency | pno),
   family = inverse.gaussian(link = "identity"),
   data = stroop_1,
 
   control = glmerControl("bobyqa")
 )
-# It worked again!
+# It worked!
 
 # See more info about using and comparing optimizers:
 ?allFit()
@@ -75,9 +75,9 @@ mod2 <- glmer(
 ## 3. Reparameterize the model ----------------
 
 # This can mean:
-# - re-scaling numerical predictors
-# - changing contrasts for factors
-# - using cell-mean coding (0 + f1:f2) or nesting (f1 / f2) terms
+# - re-scaling numerical variables
+# - changing contrasts for factors (treatment, cell-mean [below], ...)
+# - ...
 
 glmer(
   rt ~ 0 + condition:congruency + (0 + condition:congruency | pno),
@@ -85,6 +85,13 @@ glmer(
   data = stroop_1
 )
 # This doesn't work...
+
+glmer(
+  I(rt * 1000) ~ condition * congruency + (condition * congruency | pno),
+  family = inverse.gaussian(link = "identity"),
+  data = stroop_1
+)
+# But this does...
 
 # It can also mean using complex random intercepts (CRI), per Scandola & Tidoni
 # (2024) https://doi.org/10.1177/25152459231214454
@@ -104,23 +111,51 @@ mod_cri <- glmer(
   family = inverse.gaussian(link = "identity"),
   data = stroop_1
 )
-# This uses a different number of degrees of freedom, so if you're comparing
-# models make sure they are all using CRI or all NOT using CRI.
+# It worked!
 
-parameters::compare_parameters(
-  bobyqa = mod2,
-  CRI = mod_cri,
-  select = "{estimate} ({se})"
-) |>
-  print(digits = 3)
-# We can see that these give very similar estimates and standard errors as other
-# methods.
-
-# CRI has a disadvantage of making interpretation of random effects more
+# Models with CRIs uses a different number of degrees of freedom, so if you're
+# comparing models make sure they are all using CRI or all NOT using CRI.
+#
+# CRIs also has a disadvantage of making interpretation of random effects more
 # difficult, but it has the advantage of being less computationally expensive
 # and so also much (much) faster.
 
-## 4. Bayes! ----------------
+## 4. Reduce the random effects structure ----------------
+
+# We've worked really hard all semester to properly specify the maximal random
+# effects structure a-la Barr et al. (2013), so we would NOT want to actually
+# drop any random effects (slopes or intercepts), but what we can do is to drop
+# random covariances (i.e., the correlations between random effects).
+
+# We've seen that specifying independent random effects can be done with the ||
+# (double bars) in our second lesson, but a more general form of this would be
+# to use diag() which also supports factors:
+mod_diag <- glmer(
+  rt ~ condition * congruency + diag(condition * congruency | pno),
+  family = inverse.gaussian(link = "identity"),
+  data = stroop_1,
+
+  control = glmerControl("bobyqa")
+)
+# It worked!
+
+## Compare estimates and SEs across models ----------------
+
+parameters::compare_parameters(
+  mod,
+  mod_no.derivs,
+  mod_change.optim,
+  mod_diag,
+  mod_cri,
+
+  select = "{estimate} ({se})"
+) |>
+  print(digits = 4)
+# We can see that all methods that worked give very similar estimates and
+# standard errors (except for `calc.derivs = FALSE` that gives slightly smaller
+# SEs).
+
+## 5. Bayes! ----------------
 
 # Bayes is much more robust to these convergence issues (and also has many many
 # more advantages), so really this is a great time to learn Bayesian

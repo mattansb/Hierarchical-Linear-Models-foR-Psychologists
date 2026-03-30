@@ -35,9 +35,10 @@ sleepstudy |>
   stat_summary(geom = "point", size = 3, color = "red") +
   scale_y_continuous(
     name = expression((y[i] - hat(y)[i])^2),
+    breaks = c(1000, 3750, 8500, 15000),
     labels = scales::label_comma()
   ) +
-  coord_trans(y = scales::transform_sqrt()) +
+  coord_trans(y = "sqrt") +
   theme_bw()
 # It looks like some subjects have more within-person (level 1) variance (334,
 # 308) than others...
@@ -47,8 +48,16 @@ sleepstudy |>
 # 2. Using robust standard errors:
 #    See https://jepusto.github.io/clubSandwich/
 # 2. Going GAMLSS - modeling level-1 variance.
-#   - with {brms} (Bayesian)
 #   - with {gamlss} (Frequentist)
+#   - with {brms} (Bayesian)
+# brms::brm(
+#   bf(
+#     Reaction ~ Days + (Days | Subject),
+#     sigma ~ (1 | Subject) # Each subject has their own level-1 variance coef
+#   ),
+#   data = sleepstudy,
+#   # prior = ... # YOU WOULD NEED TO SPECIFY PRIORS FOR THIS MODEL!
+# )
 
 ## +2. Random effects are normally distributed -------------
 

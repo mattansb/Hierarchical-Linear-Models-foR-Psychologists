@@ -110,16 +110,3 @@ anova(mod_rndm.cond, mod_fix.cond, refit = FALSE)
 model_parameters(mod_rndm.cond, ci_method = "S")
 # We can see that ordered stimuli are responded to faster, but there results are
 # not significant.
-
-# Exercise ----------------------------------------------------------------
-
-# 1. Add sex as a fixed effect.
-# 2. Can sex be added as a random slope? Do it. Interpret the fixed effect for
-#    sex. Plot your results.
-# 3. Go back to the mod_rndm.cond model, and remove the random intercept for
-#    stim. How has this affected the significance of the effect of condition?
-#    What can we learn from this?
-#   * We have 24 types of non-repeating stimuli here
-nlevels(order_data_correct$Stim)
-#     But note that there are only 24 possible non-repeating stimuli (4*3*2).
-#     Does this change your answer to question 3?

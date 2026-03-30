@@ -1,11 +1,10 @@
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
+library(datawizard)
 
 library(lmerTest)
 
-library(datawizard)
 library(emmeans)
-emm_options(lmer.df = "S")
+emm_options(lmer.df = "S") # Satterthwaite's dfs
 
 # The data --------------------------------------------------------------------
 
@@ -62,8 +61,7 @@ mod_maximal <- lmer(
 ## ANOVA table -------------------------------------------------------------
 
 # We can obtain an Type-3 ANOVA table using the {car} package:
-AOV_maximal <- car::Anova(mod_maximal, type = 3, test.statistic = "F")
-AOV_maximal
+(AOV_maximal <- car::Anova(mod_maximal, type = 3, test.statistic = "F"))
 
 # For GLMMs, we can only set test.statistic = "Chisq" (default). This will give
 # an Analysis of Deviance Table, but everyone still seems to call it an ANOVA
@@ -71,20 +69,21 @@ AOV_maximal
 
 # We can generate from this table _*approximate*_ effect sizes with the
 # {effectsize} package:
-effectsize::eta_squared(AOV_maximal)
+effectsize::eta_squared(AOV_maximal, ci = 0.9, alternative = "two.sided") |>
+  print(digits = 3)
 
 
 ## Follow-up ---------------------------------------------------------------
-# Contrasts, simple effects, etc. can all be carried out with {emmeans}, just
-# like with a standard ANOVA. See
-# https://github.com/mattansb/Analysis-of-Factorial-Designs-foR-Psychologists
+# Contrasts, simple effects, etc. can all be carried out with {emmeans} or with
+# {marginaleffects}. Here we will use {emmeans}, which is more convenient for
+# linear mixed models, but for GLMMs {marginaleffects} is probably preferred.
 
 # Marginal means:
 em.int <- emmeans(mod_maximal, ~ treatment + phase)
 em.int
 
 
-# Simple effects:
+# Simple effects and interactions:
 joint_tests(mod_maximal, by = "treatment")
 
 # Simple contrasts:
@@ -116,7 +115,7 @@ as.data.frame(em.int) |>
   scale_color_manual(
     "Group",
     labels = c("Control", "A", "B"),
-    values = c("grey80", "red", "firebrick")
+    values = c("grey40", "red", "firebrick")
   ) +
   scale_shape("Group", labels = c("Control", "A", "B")) +
   scale_x_discrete(
@@ -128,9 +127,21 @@ as.data.frame(em.int) |>
   theme_classic()
 # etc...
 
+# We more emmeans examples here:
+# https://github.com/mattansb/Analysis-of-Factorial-Designs-foR-Psychologists
+
 # Exercise ----------------------------------------------------------------
 
-# Going back to the example from crossed random grouping variables.
+# Going back to the example from crossed random grouping variables...
+
 # 1. Fit the maximal model with an effect for condition, sex, and their
 #    interaction. Make sure data is prepared for and ANOVA table.
 # 2. Produce an ANOVA table.
+# 3. Can sex be added as a random slope? Do it. Interpret the fixed effect for
+#    sex. Plot your results.
+# 4. Go back to the mod_rndm.cond model from the lesson, and remove the random
+#    intercept for stim. How has this affected the significance of the effect of
+#    condition? What can we learn from this?
+#    * Hint: There are 24 types of non-repeating stimuli
+#      But note that there are only 24 possible non-repeating stimuli (4*3*2).
+#      Does this change your answer to question 3?

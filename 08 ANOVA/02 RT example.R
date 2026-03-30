@@ -1,5 +1,4 @@
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 library(patchwork)
 
 library(lmerTest)
@@ -21,11 +20,22 @@ data(stroop, package = "afex")
 stroop_1 <- stroop |>
   filter(
     pno %in% paste0("s1_", 1:10), # use only 10 subjects for ease of example
-    acc == 1
+    acc == 1 # only correct responses
   )
 
 head(stroop_1)
 
+# We will also prepare the data for an ANOVA table with proper F-tests (or
+# Chi-square tests) by mean-centering our predictors:
+# - For continuous predictors we can do this by subtracting the grand mean.
+# - For categorical predictors we can do this by using effects coding dummy
+#   variables.
+contrasts(stroop_1$condition) <- contr.sum
+contrasts(stroop_1$congruency) <- contr.sum
+# Unfortunately this makes the regression coefficients harder to interpret, but
+# we can use followup contrasts and simple effects instead (see below).
+# Learn more here:
+# https://shouldbewriting.netlify.app/posts/2021-05-25-everything-about-anova/
 
 # The maximal model -----------------------------------------------------------
 
@@ -44,12 +54,12 @@ head(stroop_1)
 mod_inv.gaus <- glmer(
   rt ~ condition * congruency + (condition * congruency | pno),
   family = inverse.gaussian(link = "identity"),
-  control = glmerControl("nlminbwrap"),
   data = stroop_1
 )
+check_convergence(mod_inv.gaus) # LGTM
 
 
-## Different likelihoods... --------------------
+## Different distributions... --------------------
 
 # Is the inverse-Gaussian a good choice here?
 # Let's preform a predictive check with other families. See
@@ -67,7 +77,6 @@ mod_lnorm <- lmer(
   log(rt) ~ condition * congruency + (condition * congruency | pno),
   data = stroop_1
 )
-check_convergence(mod_lnorm) # LGTM
 
 
 (plot(check_predictions(mod_inv.gaus)) + ggtitle("Inverse Gaussian")) /
@@ -76,47 +85,19 @@ check_convergence(mod_lnorm) # LGTM
   plot_layout(guides = "collect") &
   coord_cartesian(xlim = c(0, 2))
 # We can see that the inverse-Gaussian model fits better than the Gaussian
-# model. Not perfect, but better, and the log-normal model fits best.
-# However, the log-normal uses a transformed response, making interpretation of
-# effect and especially interaction difficult.
+# model. Not perfect, but better, and the log-normal model fits best. However,
+# the log-normal uses a transformed response, making interpretation of effect
+# and especially interaction difficult.
 
-## ANOVA table -------------------------------------------------------------
+# For even more options (ex-Gaussian, DDM...),
+# see https://lindeloev.github.io/shiny-rt/
+
 # (Let's stick to the inverse-Gaussian model for now.)
 
-# To produce type-3 ANOVA tables with proper F-tests (or Chi-square tests) we
-# need to fit the model with all of our predictors mean-centered.
-# - For continuous predictors we can do this by subtracting the grand mean.
-# - For categorical predictors we can do this by using effects coding dummy
-#   variables.
-contrasts(stroop_1$condition) <- contr.sum
-contrasts(stroop_1$congruency) <- contr.sum
-# Unfortunately this makes the regression coefficients harder to interpret, but
-# we can use followup contrasts and simple effects instead (see below).
-# Learn more here:
-# https://shouldbewriting.netlify.app/posts/2021-05-25-everything-about-anova/
-
-mod_inv.gaus2 <- glmer(
-  rt ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian("identity"),
-  data = stroop_1
-)
-check_convergence(mod_inv.gaus2) # Oh no! A real convergence issue!
-
-# Let's try and fix that by using a different internal optimizer function:
-mod_inv.gaus2 <- glmer(
-  rt ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian("identity"),
-  data = stroop_1,
-
-  control = glmerControl("bobyqa"),
-)
-# Yay!
-# For even more ways to deal with convergence issues, see:
-?allFit
-?brms::brm # go full Bayesian
+## ANOVA table -------------------------------------------------------------
 
 # We can obtain an Type-3 ANOVA table using the {car} package:
-car::Anova(mod_inv.gaus2, type = 3)
+car::Anova(mod_inv.gaus, type = 3)
 # This is actually an Analysis of Deviance Table (because we are using a
 # GLM(M)), but everyone still seems to call it an ANOVA table or an ANOVA-like
 # table.
@@ -126,10 +107,9 @@ car::Anova(mod_inv.gaus2, type = 3)
 # like with a standard ANOVA. See
 # https://github.com/mattansb/Analysis-of-Factorial-Designs-foR-Psychologists
 
-joint_tests(mod_inv.gaus2, by = "condition")
+joint_tests(mod_inv.gaus, by = "condition")
 
-em.int <- emmeans(mod_inv.gaus2, ~congruency)
-em.int
+(em.int <- emmeans(mod_inv.gaus, ~congruency, type = "response"))
 
 contrast(em.int, method = "revpairwise")
 
@@ -141,8 +121,7 @@ contrast(em.int, method = "revpairwise")
 # the link-scale. If we want emmeans to back-transform the response, we need to
 # set `regrid = "response"`.
 
-em.int2 <- emmeans(mod_lnorm, ~congruency, regrid = "response")
-em.int2
+(em.int2 <- emmeans(mod_lnorm, ~congruency, regrid = "response"))
 
 # Compare to:
 em.int

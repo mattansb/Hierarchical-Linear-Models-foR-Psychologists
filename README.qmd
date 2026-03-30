@@ -78,7 +78,7 @@ r_df <- tibble(
 
 r_df |>
   mutate(
-    Lesson = glue("[{Lesson}](//{Lesson})"),
+    Lesson = glue("[{Lesson}]({Lesson})"),
     Packages = sapply(Packages, \(x) glue('`{x}`') |> glue_collapse(sep = ", "))
   ) |>
   knitr::kable()

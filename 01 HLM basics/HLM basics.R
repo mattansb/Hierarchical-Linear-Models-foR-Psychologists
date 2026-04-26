@@ -6,7 +6,7 @@ library(lmerTest) # For model fitting (uses {lme4})
 # - {glmmTMB}: more flexible; can be less stable
 # - {brms}: MOST flexible; Bayesian
 
-library(performance) # For getting ICC and R2
+library(performance) # For ICC and R2
 library(parameters) # For tidy parameter tables with CIs
 library(merDeriv)
 library(emmeans) # For simple slope analysis
@@ -102,8 +102,8 @@ mean(dataset_long$outcome)
 mod_rndm.intr <- lmer(
   outcome ~
     1 +
-    # the syntax start the same for FIXED effects BUT, we will add the RANDOM
-    # effects with Wilkinson's notation:
+    # the syntax starts the same for FIXED effects BUT, we will add the RANDOM
+    # effects with the Wilkinson-Bates notation:
     # (varying effect(s) | random grouping variable)
     (1 | PersonID),
 
@@ -113,7 +113,7 @@ mod_rndm.intr <- lmer(
 summary(mod_rndm.intr)
 
 # see tidy parameters:
-model_parameters(mod_rndm.intr, ci_method = "Satterthwaite") # We'll discuss these next week
+model_parameters(mod_rndm.intr, ci_method = "Satterthwaite") # We'll discuss this next week
 
 # Check out that the output refers to:
 # 1. Fixed effects
@@ -186,8 +186,6 @@ sjPlot::tab_model(
 )
 # The interaction's SE, CIs and p have changed - why?
 # Will adding random effects always increase power? What does this depend on?
-p_spaghetti + facet_grid(cols = vars(group)) # What can we see here?
-
 
 # This model can also be fit with an rmANOVA - and it will be equivalent!
 afex::aov_ez(
@@ -197,10 +195,10 @@ afex::aov_ez(
   between = "group",
   within = "Time"
 )
-# Notice that the df and p value for the interaction are nearly identical! (They
-# are NOT the same for Time and group - in the ANOVA they are main effect, in the
-# LMM they are simple effects. We will discuss ANOVA tables for (G)LMMs later in
-# the semester.)
+# Notice that the df and p value for the interaction are nearly identical!
+# (They are NOT the same for Time and group - in the ANOVA they are main effect,
+# in the LMM they are simple effects. We will discuss ANOVA tables for (G)LMMs
+# later in the semester.)
 
 ## Simple slopes analysis --------------------------
 
@@ -237,5 +235,5 @@ model_parameters(mod_max.mixed, ci_method = "S")
 # We can extract each of these parts:
 fixef(mod_max.mixed) # gamma
 ranef(mod_max.mixed) # U_0
-coef(mod_max.mixed) # b_0j (but also all the other fixed values)
+coef(mod_max.mixed) # gamma + U (Almost b)
 residuals(mod_max.mixed) # e_ij

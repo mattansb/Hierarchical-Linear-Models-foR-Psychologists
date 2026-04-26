@@ -112,7 +112,7 @@ ranova(mod_rndm.intr)
 # Conclusion - the random intercept model results in better fit.
 
 # Had we looked at the ICC before testing, we would have expected this result:
-icc(mod_rndm.intr)
+icc(mod_rndm.intr, ci = 0.95)
 
 # Report: ICC=0.82, X2(1)=691.74, p<.001
 
@@ -144,9 +144,9 @@ r2(mod_rndm.intr)
 #
 # Composite:
 #     RT_ji =  (gamma_00 + U_0j) + gamma_10 * session_ij + eji
-#   RT of person j during obs. i= sample's mean RT + general session effect *
-#   session value at obs. i  + the individual difference in person j's intercept
-#   + error for person j in obs. i
+#   RT of person j during obs. i = mean intercept + the individual difference in
+#   person j's intercept + general session effect * session value at obs. i +
+#   error for person j in obs. i
 
 mod_fixd.sssn <- lmer(rt ~ session + (1 | PersonID), data = dataset)
 # (rt ~ session is the same as rt ~ 1 + session)

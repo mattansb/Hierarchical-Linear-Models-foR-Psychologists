@@ -171,12 +171,12 @@ mod_max.mixed <- lmer(
 
 
 # Lets ignore the nested nature of the data, and fit the SAME fixed effects:
-mode_max.fixed <- lm(outcome ~ Time * group, data = dataset_long)
+mod_max.fixed <- lm(outcome ~ Time * group, data = dataset_long)
 
 
 # We can directly compare the model with sjPlot::tab_model():
 sjPlot::tab_model(
-  mode_max.fixed,
+  mod_max.fixed,
   mod_max.mixed,
   dv.labels = c("No Random Effects", "Mixed Effects Model"),
 

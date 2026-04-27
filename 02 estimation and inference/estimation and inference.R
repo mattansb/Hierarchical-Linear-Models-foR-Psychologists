@@ -293,34 +293,26 @@ head(dataset2)
 
 # This Data includes 100 heterosexual romantic couples.
 # The Variables:
-# -> ID here is not per person, but - per couple!
-# -> Two measurements of relationship satisfaction ('sat') - For males (M_sat)
-#    and for females (F_sat)
-# -> Duration of the relationship in years
-# * M_sat, F_sat and Duration variables were centered and this is why we have
-#   both pos and neg values. (Only 100 obs. from the total sample appear here.
-#   Centering was preformed on a bigger sample, this is why the variables mean
-#   are not zero. Though, it isn't important to our use)
+# - ID here is not per person, but - per couple!
+# - Duration of the relationship in years
+# - Two measurements of relationship satisfaction ('sat') -
+#   M_sat - for males
+#   F_sat - for females
 
-# Note 1- don't forget to prepare the data in a stacked\long format!
-#         Hint- think of Gender as the a binary variable (like time 0
-#         and time 1 in the first tutorial with the "2 occasions data")
-# Note 2- please use lm()\ lmer() and not other functions,
-#         (even if it is possible for these models)
-
-# Don't forget to interpret your results as you go!
-
-# 1) Identify the design: the random grouping variable, levels, DV, and
+# 1) Reshape the data to a stacked\long format.
+# 2) Identify the design: the random grouping variable, levels, DV, and
 #    predictors and their levels.
-# 2) build 2 models:
+# 3) build 2 models:
 # Model A: empty model for predicting satisfaction.
 #          ?. What does the intercept estimate mean?
 # Model B: Model A + random intercepts per COUPLE.
 #          ?. Compute the ICC. What does it means?
 #          (The first tutorial's script may help you with this part!)
-# 3) Compare models A and B using the right indices (which)
-# 4) Build 2 more models:
+# 4) Compare models A and B using the right indices (which)
+# 5) Build 2 more models:
 # Model C: Model B + fixed effect for gender + fixed effect for duration.
 # Model D: Model C + an interaction between gender and duration.
-# 5) Compare model C to B and model D to C- each time using the right indices.
-# 6) gender is a level one predictor - can we add a random slope per couple?
+# 6) Compare model C to B and model D to C- each time using the right indices.
+# 7) gender is a level one predictor - can we add a random slope per couple?
+
+# Don't forget to interpret your results as you go!

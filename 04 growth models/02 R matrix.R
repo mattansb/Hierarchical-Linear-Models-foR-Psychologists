@@ -1,6 +1,12 @@
+# This script requires the development versions of lme4 and parameters, which
+# are not yet on CRAN. You can install them with pak:
+pak::pak(c(
+  "lme4/lme4", # requires lme4 2.0.2 or later
+  "easystats/parameters" # requires parameters 0.28.3.17 or later
+))
+
 library(ggplot2)
 
-# pak::pak("lme4/lme4") # requires dev version of lme4
 library(lme4)
 
 library(parameters)
@@ -56,9 +62,10 @@ mod_sssn.ar1 <- lmer(
 
 anova(mod_sssn.ar1, mod_sssn, refit = FALSE)
 # The AR1 model is a better fit to the data!
+# (Which variance component did we explain with the AR1 structure?)
 
 # Let's look at the AR1 parameter:
-VarCorr(mod_sssn.ar1)
+model_parameters(mod_sssn.ar1, ci_method = "s")
 # Positive := residuals tend to be similar session-to-session.
 # (See if you can see it in the plot)
 

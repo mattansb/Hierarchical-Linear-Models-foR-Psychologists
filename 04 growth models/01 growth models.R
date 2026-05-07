@@ -19,10 +19,9 @@ source(
 # - was a measure of processing speed: the average response time (RT) across
 # trials (in milliseconds).
 
-temp <- tempfile()
 download.file(
   "https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip",
-  temp
+  temp <- tempfile()
 )
 dataset <- haven::read_sav(unz(temp, "SPSS_Chapter6/SPSS_Chapter6.sav"))
 unlink(temp)
@@ -375,8 +374,10 @@ slopes(
 
 # Exercise ----------------------------------------------------------------
 
-temp <- tempfile()
-download.file("https://www.intensivelongitudinal.com/ch4/ch4R.zip", temp)
+download.file(
+  "https://www.intensivelongitudinal.com/ch4/ch4R.zip",
+  temp <- tempfile()
+)
 dataex <- read.csv(unz(temp, "ch4R/time.csv"))
 unlink(temp)
 

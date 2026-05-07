@@ -14,10 +14,9 @@ library(parameters)
 # individual differences in short-term learning; individual trajectories for the
 # change in RT across the six occasions.
 
-temp <- tempfile()
 download.file(
   "https://www.pilesofvariance.com/Chapter3b/SPSS/SPSS_Chapter3b.zip",
-  temp
+  temp <- tempfile()
 )
 dataset <- haven::read_sav(unz(temp, "SPSS_Chapter3b/SPSS_Chapter3b.sav"))
 unlink(temp)

@@ -14,10 +14,9 @@ source(
 
 # The data -------------------------------------------------------------------
 
-temp <- tempfile()
 download.file(
   "https://www.pilesofvariance.com/Chapter8/SPSS/SPSS_Chapter8.zip",
-  temp
+  temp <- tempfile()
 )
 dataset <- haven::read_sav(unz(temp, "SPSS_Chapter8/SPSS_Chapter8.sav"))
 unlink(temp)
@@ -304,10 +303,9 @@ anova(mod_rndm.mood, mod_mood, refit = FALSE)
 
 # Exercise --------------------------------------------------------------------
 
-temp <- tempfile()
 download.file(
   "https://www.pilesofvariance.com/Chapter9/SPSS/SPSS_Chapter9.zip",
-  temp
+  temp <- tempfile()
 )
 dataset2 <- haven::read_sav(unz(temp, "SPSS_Chapter9/SPSS_Chapter9.sav"))
 unlink(temp)

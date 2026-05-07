@@ -16,10 +16,9 @@ emm_options(lmer.df = "satterthwaite") # we'll discuss this next week
 # Two-occasion data (Ch. 3- Hoffman) -------------------------------------
 
 # getting the DATA:
-temp <- tempfile()
 download.file(
   "https://www.pilesofvariance.com/Chapter3a/SPSS/SPSS_Chapter3a.zip",
-  temp
+  temp <- tempfile()
 )
 dataset <- haven::read_sav(unz(temp, "SPSS_Chapter3a/SPSS_Chapter3a.sav"))
 unlink(temp)

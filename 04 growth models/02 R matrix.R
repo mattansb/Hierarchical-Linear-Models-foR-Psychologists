@@ -7,10 +7,9 @@ library(parameters)
 
 # Data ----------------------------------------------------------------
 
-temp <- tempfile()
 download.file(
   "https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip",
-  temp
+  temp <- tempfile()
 )
 dataset <- haven::read_sav(unz(temp, "SPSS_Chapter6/SPSS_Chapter6.sav"))
 unlink(temp)

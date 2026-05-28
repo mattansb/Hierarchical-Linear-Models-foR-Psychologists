@@ -60,6 +60,9 @@ mod_sssn.ar1 <- lmer(
 # >  factor(session), Time is discrete
 # >  hom = TRUE)      We assume the variance is equal across sessions
 
+# (Note: we got a message about the model being singular - we will address these
+# later in the course.)
+
 anova(mod_sssn.ar1, mod_sssn, refit = FALSE)
 # The AR1 model is a better fit to the data!
 # (Which variance component did we explain with the AR1 structure?)

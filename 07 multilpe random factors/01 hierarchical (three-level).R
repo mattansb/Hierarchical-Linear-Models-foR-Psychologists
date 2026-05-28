@@ -178,8 +178,14 @@ mod_rndm.grade2 <- lmer(
   math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
   data = egsingle
 )
-# We get a convergence warning here - let's check it out:
+# We got a singularity message - let's check it out:
+check_singularity(mod_rndm.grade2)
+# We might want to stay away from wald tests here (use profile CIs instead), but
+# we can still compare the models with LRTs and get the parameter estimates.
+
+# We also get a convergence warning here - let's check it out:
 check_convergence(mod_rndm.grade2) # LGTM
+
 
 VarCorr(mod_rndm.grade)
 VarCorr(mod_rndm.grade2)

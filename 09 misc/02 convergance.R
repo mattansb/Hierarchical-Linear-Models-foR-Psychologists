@@ -86,8 +86,8 @@ glmer(
 )
 # This doesn't work...
 
-# It can also mean using complex random intercepts (CRI), per Scandola & Tidoni
-# (2024) https://doi.org/10.1177/25152459231214454
+# It can fir the model using complex random intercepts (CRI), per Scandola &
+# Tidoni (2024) https://doi.org/10.1177/25152459231214454
 #
 # This means going from this (x is a numeric predictor and f is a factor):
 y ~ x * f + (1 + x * f | g)

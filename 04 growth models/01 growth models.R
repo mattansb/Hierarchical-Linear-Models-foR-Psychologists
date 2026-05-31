@@ -80,18 +80,15 @@ dataset |>
 
 ## Spaghetti plot:
 ggplot(dataset, aes(session, rt)) +
-  stat_smooth(
-    aes(color = factor(PersonID)),
-    se = FALSE,
-    alpha = 0.9,
-    show.legend = FALSE
-  ) +
+  # geom_path(aes(color = factor(PersonID)), alpha = 0.9, linewidth = 1) +
+  stat_smooth(aes(color = factor(PersonID)), se = FALSE, alpha = 0.9) +
   scale_color_manual(
     values = sample(
       c("#c9190e", "#ccba82", "#daca89", "#d2c291", "#c8b04f"),
       size = 101,
-      replace = TRUE
-    )
+      replace = TRUE,
+    ),
+    guide = "none"
   ) +
   stat_smooth(se = FALSE, color = "black", linewidth = 2) +
   scale_x_continuous("Session", breaks = 1:6) +
@@ -241,6 +238,10 @@ mod_rndm.time <- lmer(rt ~ time + (time | PersonID), data = dataset)
 anova(mod_rndm.time, mod_fixef.time, refit = FALSE)
 ranova(mod_rndm.time) # or...
 
+# How much variance is accounted for by the ___ slope of time?
+r2_pseudo(mod_rndm.time, mod_rndm.intr) # random + fixed
+r2_pseudo(mod_rndm.time, mod_fixef.time, mnull = mod_rndm.intr) # random only
+# ? Why has the pseudo-R2 for the random intercept changed??
 
 model_parameters(mod_rndm.time, ci_method = "S", ci_random = TRUE)
 # There seems to be a negative correlation... How would we interpreter it?

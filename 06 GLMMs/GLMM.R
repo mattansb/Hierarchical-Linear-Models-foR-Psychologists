@@ -30,9 +30,6 @@ nlevels(SFON_data$ID)
 # not (Attend). Additionally, the children ability to discriminate between
 # quantities was measured (weberFr).
 
-head(SFON_data, n = 16)
-
-
 ## Understanding the data --------------------
 
 # The outcome is "Attend"
@@ -50,7 +47,12 @@ SFON_data |>
 
 # We can summarize the data by child
 ggplot(SFON_data, aes(weberFr, Attend)) +
-  stat_summary(aes(group = ID), geom = "point")
+  stat_summary(aes(group = ID), geom = "point") +
+  theme_bw() +
+  labs(
+    x = "Discrimination Ratio",
+    y = "Probability of Attending Numerosity"
+  )
 # Looks like a negative trend - how can we model this?
 
 # Learn more about GLMs here:
@@ -66,41 +68,46 @@ mod_rndm.intr <- glmer(
 )
 
 
-# - On average, do children tend to attend more or less?
+## On average, do children tend to attend more or less? --------------
 model_parameters(mod_rndm.intr)
 # Coefficient is negative, hard to tell...
 model_parameters(mod_rndm.intr, exponentiate = TRUE)
+
 # An Odds of 0.21 is ~1:4.5, or p = 0.17
-plogis(-1.54)
+plogis(fixef(mod_rndm.intr))
+# This is the so called "generalized mean" of the outcome: the mean on the logit
+# scale, inverse transformed to the probability scale.
 
 # However, this is a _biased_ estimate. Why?
-# Because inv(mean(logit)) != mean(inv(logit))
 mean(SFON_data$Attend)
 
+# Because inv(mean(logit)) != mean(inv(logit)):
+# The fixed effect is the mean on the logit scale - inverse transforming it to
+# the probability scale does not give the mean of the probability scale.
+
 # We can get the unbiased estimate with {marginaleffects}:
-# "generalized" means:
-avg_predictions(
-  mod_rndm.intr,
-  newdata = datagrid(),
-  re.form = NA
-)
-# vs. actual means:
-avg_predictions(
-  mod_rndm.intr,
-  # We *want* the random effects
-  newdata = datagrid(ID = unique),
-  re.form = NULL
-)
+# Predict the individual probabilities *including* the random effects:
+predictions(mod_rndm.intr, re.form = NULL)
+# (re.form = NULL because we *want* the random effects)
+# And then average them:
+avg_predictions(mod_rndm.intr, re.form = NULL)
 
 # Does this matter? Depends on what you're doing. The biased estimates are
 # sometimes called *generalized means*, and those are sometimes fine. See:
 # https://rvlenth.github.io/emmeans/articles/transformations.html?q=bias#bias-adj
 
-# - What is the ICC?
+## What is the ICC? ----------------------
+# Note that logistic models don't have "error variance".
+# Instead level 1 variance is fixed at:
+VarCorr(mod_rndm.intr)
+
+# But the level 1 variance for the underlying logistic distribution is fixed at:
+(pi^2) / 3
+# So the ICC would be:
+2.8961^2 / (2.8961^2 + (pi^2) / 3)
+
+# Which is exactly what the performance package does for us:
 icc(mod_rndm.intr)
-# Note that logistic models don't have "error variance". Instead level 1
-# variance is fixed at (pi^2)/3
-insight::get_variance_residual(mod_rndm.intr)
 
 
 # Age model -------------------------------------------------------------
@@ -112,17 +119,19 @@ mod_age <- glmer(
 )
 
 anova(mod_age, mod_rndm.intr) # We can see the Age is a significant predictor.
+# Note no refitting - GLMMs are ML only
 
 # We can compute pseudo R2 - Age is a level 2 variable, so it explained level 2
 # variance:
 VarCorr(mod_rndm.intr)
 VarCorr(mod_age)
 
-r2_pseudo(mod_age, mod_rndm.intr)[1, ]
+r2_pseudo(mod_age, mod_rndm.intr)
 # Age explains 19% of the variance between children in their tendency to attend
 # quantitative properties.
 
 model_parameters(mod_age, exponentiate = TRUE)
+range(SFON_data$Age)
 # We can report the effect of age on the OR scale:
 # Age had a positive effect on attending, with the odds of attending increasing
 # of each year of age by a factor of OR = 65.37, 95% CI [4.43, 965.05], z =

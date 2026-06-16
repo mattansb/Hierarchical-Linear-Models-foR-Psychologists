@@ -335,7 +335,7 @@ dataset2.long <- dataset2 |>
   ) |>
   mutate(
     PersonID = factor(PersonID),
-    YearsPre18 = Age - 18 # we centered age to 18
+    YearsPre18 = Age - 12 # we centered age to 12 (the beginning of the study)
   )
 head(dataset2.long)
 

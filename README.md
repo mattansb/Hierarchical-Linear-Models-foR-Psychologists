@@ -6,7 +6,7 @@
 [![](https://img.shields.io/badge/CC-BY--NC%204.0-lightgray)](http://creativecommons.org/licenses/by-nc/4.0/)
 [![](https://img.shields.io/badge/Language-R-blue.png)](http://cran.r-project.org/)
 
-<sub>*Last updated 2026-03-30.*</sub>
+<sub>*Last updated 2026-06-22.*</sub>
 
 This Github repo contains all lesson files for *Hierarchical Linear
 Models in R*. The goal is to impart students with the basic tools to
@@ -45,13 +45,13 @@ You will need:
 |:---|:---|
 | [01 HLM basics](01%20HLM%20basics//) | `tidyverse`, `lmerTest`, `performance`, `parameters`, `merDeriv`, `emmeans`, `haven`, `sjPlot`, `afex` |
 | [02 estimation and inference](02%20estimation%20and%20inference//) | `tidyverse`, `lmerTest`, `performance`, `parameters`, `haven`, `scales`, `glue`, `sjPlot`, `bayestestR` |
-| [03 cross-level interactions and effect sizes](03%20cross-level%20interactions%20and%20effect%20sizes//) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `scales` |
-| [04 growth models](04%20growth%20models//) | `tidyverse`, `lmerTest`, `parameters`, `performance`, `marginaleffects`, `haven`, `scales`, `glue`, `ggplot2`, `pak`, `lme4`, `parameters`, `haven`, `nlme`, `glmmTMB`, `brms` |
-| [05 within-person fluctuation models](05%20within-person%20fluctuation%20models//) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `haven` |
-| [06 GLMMs](06%20GLMMs//) | `tidyverse`, `lme4`, `performance`, `parameters`, `marginaleffects`, `haven`, `insight`, `scales`, `glmmTMB`, `brms` |
-| [07 multilpe random factors](07%20multilpe%20random%20factors//) | `tidyverse`, `patchwork`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `mlmRev`, `forcats` |
+| [03 cross-level interactions and effect sizes](03%20cross-level%20interactions%20and%20effect%20sizes//) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `scales`, `MSBMisc` |
+| [04 growth models](04%20growth%20models//) | `tidyverse`, `lmerTest`, `parameters`, `performance`, `marginaleffects`, `MSBMisc`, `haven`, `scales`, `glue`, `pak`, `ggplot2`, `lme4`, `nlme`, `glmmTMB`, `brms` |
+| [05 within-person fluctuation models](05%20within-person%20fluctuation%20models//) | `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `MSBMisc`, `haven` |
+| [06 GLMMs](06%20GLMMs//) | `tidyverse`, `lme4`, `performance`, `parameters`, `marginaleffects`, `MSBMisc`, `haven`, `scales`, `glmmTMB`, `brms` |
+| [07 multilpe random factors](07%20multilpe%20random%20factors//) | `tidyverse`, `patchwork`, `lmerTest`, `performance`, `parameters`, `marginaleffects`, `MSBMisc`, `mlmRev` |
 | [08 ANOVA](08%20ANOVA//) | `tidyverse`, `datawizard`, `lmerTest`, `emmeans`, `afex`, `car`, `effectsize`, `patchwork`, `performance`, `statmod`, `see` |
-| [09 misc](09%20misc//) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `scales`, `brms`, `dplyr`, `afex`, `parameters`, `rstanarm` |
+| [09 misc](09%20misc//) | `tidyverse`, `lmerTest`, `performance`, `DHARMa`, `clubSandwich`, `scales`, `parameters`, `brms`, `tidyverse`, `datawizard`, `lmerTest`, `performance`, `parameters`, `mlmRev`, `brms`, `rstanarm` |
 
 <details>
 
@@ -64,20 +64,24 @@ You can install all the R packages used by running:
 
     # in alphabetical order:
 
+    pak::repo_add(rhub = 'https://mattansb.r-universe.dev')
+
     pak::pak(
       c(
 
         "cran::DHARMa", # 0.4.7
+        "MSBMisc", # 0.0.1.15
         "cran::afex", # 1.5-1
         "cran::brms", # 2.23.0
         "cran::car", # 3.1-5
+        "cran::clubSandwich", # 0.6.2
         "cran::easystats", # 0.7.5
         "cran::emmeans", # 2.0.2
         "cran::glmmTMB", # 1.1.14
         "cran::glue", # 1.8.0
         "github::lme4/lme4", # 2.0-2
         "cran::lmerTest", # 3.2-1
-        "cran::marginaleffects", # 0.32.0
+        "github::vincentarelbundock/marginaleffects", # 0.32.0.5
         "cran::merDeriv", # 0.2-5
         "cran::mlmRev", # 1.0-8
         "cran::nlme", # 3.1-168

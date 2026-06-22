@@ -7,7 +7,6 @@ execute:
 
 ```{r}
 #| include: false
-
 library(tidyverse)
 library(glue)
 
@@ -93,7 +92,6 @@ You can install all the R packages used by running:
 ```{r}
 r_pkgs <- r_pkgs |>
   unlist(recursive = TRUE) |>
-  c(extract_pkgs("helpers.R")) |>
   unique() |>
   setdiff(tidyverse::tidyverse_packages()) |>
   setdiff(easystats::easystats_packages()) |>
@@ -116,7 +114,7 @@ get_src <- function(pkg) {
   pd <- packageDescription(pkg)
   if (is.null(src <- pd$Repository)) {
     if (!is.null(src <- pd$GithubRepo)) {
-      src <- paste0("Github: ",pd$GithubUsername,"/",src)
+      src <- paste0("Github: ", pd$GithubUsername, "/", src)
     } else {
       src <- "Dev"
     }
@@ -127,7 +125,7 @@ get_src <- function(pkg) {
 r_pkg_info <- tibble(
   pkg = r_pkgs,
   source = sapply(r_pkgs, get_src),
-  version = packinfo[r_pkgs,"Version"]
+  version = packinfo[r_pkgs, "Version"]
 ) |>
   filter(version != packageVersion("base")) |>
   mutate(
@@ -138,17 +136,19 @@ r_pkg_info <- tibble(
       str_detect(source, "Bioconductor") ~ "bioc"
     ),
 
-    pak = case_match(
+    pak = recode_values(
       pak_src,
       "cran" ~ glue("cran::{pkg}"),
       "bioc" ~ glue("bioc::{pkg}"),
       "github" ~ glue("github::{str_remove_all(source, 'Github: ')}"),
-      .default = pkg
+      default = pkg
     )
   ) |>
   arrange(pkg)
 
 cat("# in alphabetical order:\n\n")
+
+cat("pak::repo_add(rhub = 'https://mattansb.r-universe.dev')")
 
 cat("pak::pak(\n  c(")
 
@@ -156,7 +156,8 @@ comma <- rep(",", nrow(r_pkg_info))
 comma[nrow(r_pkg_info)] <- ""
 
 cat(
-  glue_data(r_pkg_info, '    "{pak}"{comma} # {version}') |> glue_collapse(sep = "\n")
+  glue_data(r_pkg_info, '    "{pak}"{comma} # {version}') |>
+    glue_collapse(sep = "\n")
 )
 
 cat("  )\n)")

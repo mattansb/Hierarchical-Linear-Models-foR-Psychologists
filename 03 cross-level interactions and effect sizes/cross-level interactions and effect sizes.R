@@ -236,37 +236,16 @@ anova(mod_adhd, mod_wthn.prsn, refit = TRUE) # fit isn't better
 # We are looking at the change in variance to the random intercepts.
 VarCorr(mod_wthn.prsn)
 VarCorr(mod_adhd)
-# Now it is SD(Intercept) = 471.84
 # Before it was SD(Intercept) = 477.99
+# Now it is SD(Intercept) = 471.84
 
 (Psd_R2 <- 1 - (471.84^2) / (477.99^2))
 # Therefore, 2.5% of the between-person variance in the neutral condition is
 # accounted for by ADHD symptoms (at least in this data set).
 
-# Let's make a function to compute Pseudo R2 for all variance components (we
-# still need to know which component to look at!):
-r2_pseudo <- function(mf, mr, mnull = mr) {
-  V_table <- function(model) {
-    as_tibble(VarCorr(model)) |>
-      filter(is.na(var2)) |>
-      select(-sdcor, -var2) |>
-      rename(var = var1)
-  }
-
-  V_full <- V_table(mf)
-  V_restricted <- V_table(mr)
-  V_empty <- V_table(mnull)
-
-  V_full |>
-    inner_join(V_restricted, by = c("grp", "var")) |>
-    inner_join(V_empty, by = c("grp", "var")) |>
-    mutate(
-      r2 = (vcov.y - vcov.x) / vcov,
-    ) |>
-    select(grp, var, r2)
-}
-
-r2_pseudo(mod_adhd, mod_wthn.prsn)
+# We can also use this little helper function:
+# install.packages("MSBMisc", repos = "https://mattansb.r-universe.dev")
+MSBMisc::r2_pseudo(mod_adhd, mod_wthn.prsn)
 
 # Compare to:
 r2_nakagawa(mod_adhd)
@@ -371,7 +350,7 @@ r2_nakagawa(mod_cli) # total explained variance
 VarCorr(mod_cli)
 VarCorr(mod_adhd)
 
-r2_pseudo(mod_cli, mod_adhd)
+MSBMisc::r2_pseudo(mod_cli, mod_adhd)
 # Very little compared to the previous model...
 
 # And Pseudo Std. Coef:

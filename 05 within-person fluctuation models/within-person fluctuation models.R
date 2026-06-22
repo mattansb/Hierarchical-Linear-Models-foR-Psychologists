@@ -5,11 +5,7 @@ library(lmerTest)
 
 library(performance)
 library(parameters)
-
-# load r2_pseudo function
-source(
-  "https://github.com/mattansb/Hierarchical-Linear-Models-foR-Psychologists/raw/refs/heads/main/helpers.R"
-)
+library(MSBMisc) # for r2_pseudo()
 
 
 # The data -------------------------------------------------------------------

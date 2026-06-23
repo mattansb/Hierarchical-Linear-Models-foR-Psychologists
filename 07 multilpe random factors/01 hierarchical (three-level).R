@@ -62,8 +62,8 @@ set.seed(20260330)
 egsingle |>
   filter(schoolid %in% sample(levels(schoolid), 12)) |>
   mutate(
-    childid = forcats::fct_reorder(childid, math, .fun = mean),
-    schoolid = forcats::fct_reorder(schoolid, math, .fun = mean)
+    childid = fct_reorder(childid, math, .fun = mean),
+    schoolid = fct_reorder(schoolid, math, .fun = mean)
   ) |>
   ggplot(aes(childid, math)) +
   facet_wrap(facets = vars(schoolid), scales = "free_x", nrow = 2) +
@@ -191,6 +191,14 @@ r2_pseudo(mod_rndm.grade2, mod_rndm.grade)[2, ]
 # 89% of the variance between how children differ in their growth can be
 # attributed to different schools showing different growth.
 
+# But there is still some variability in the growth between children within
+# schools that is not explained by the school-level differences in growth:
+ranova(mod_rndm.grade2)
+
+# We not get proper inference for the linear growth effect:
+model_parameters(mod_rndm.grade2, ci_method = "S")
+
+
 ## Conditional growth model -----------------------------------------------
 
 # Let's examine the interacting effect of percentage of low-income students in
@@ -223,10 +231,10 @@ mod_lowinc <- lmer(
 check_convergence(mod_lowinc) # LGTM
 
 anova(mod_lowinc, mod_rndm.grade2)
-# The models are different - but the difference between models accounts for the
-# main effect and the interaction.
+# The models are different - but note that the difference between models
+# accounts for the main effect AND the interaction.
 
-model_parameters(mod_lowinc, ci_method = "S")
+model_parameters(mod_lowinc, ci_method = "S") |> print(digits = 3)
 # - The simple effect of grade (for school with no lower income students) is 0.88.
 # - The simple effect of lowinc (at grade=0) is -0.01 -> the more lower income
 #   the student body is, the lower the math grades at grade 0 are.
@@ -250,7 +258,7 @@ VarCorr(mod_lowinc)
 VarCorr(mod_rndm.grade2)
 r2_pseudo(mod_lowinc, mod_rndm.grade2)[4, ]
 
-# 9% of the variance in the growth is explained by lowinc!
+# 9% of the between school variance in the growth is explained by lowinc!
 
 # Questions ----------------------------------------------------------------
 

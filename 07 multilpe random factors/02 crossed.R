@@ -75,16 +75,16 @@ icc(mod_rndm.intr, by_group = TRUE) # ICC for each group
 # between Stimuli! That means that not only do subjects differ in how fast they
 # are over all, but also stimuli differ in how fast they are responded to!
 
-ranova(mod_rndm.intr) # Both are significant
+ranova(mod_rndm.intr) # Both are significant (duh)
 
 # What does this look like?
 p_subject <- order_data_correct |>
   mutate(
-    Subject = forcats::fct_reorder(Subject, rt, .fun = mean)
+    Subject = fct_reorder(Subject, rt, .fun = mean)
   ) |>
   ggplot(aes(Subject, rt)) +
-  geom_point(alpha = 0.4, shape = 16) +
-  stat_summary(geom = "point", fun = "mean", color = "red", size = 2) +
+  stat_sum(alpha = 0.4, shape = 16) +
+  stat_summary(geom = "point", fun = "mean", color = "red", size = 3) +
   theme_bw() +
   theme(
     strip.background = element_blank(),
@@ -96,10 +96,10 @@ p_stim <- p_subject +
   aes(x = Stim) +
   (order_data_correct |>
     mutate(
-      Stim = forcats::fct_reorder(Stim, rt, .fun = mean)
+      Stim = fct_reorder(Stim, rt, .fun = mean)
     ))
 
-p_subject + p_stim + plot_layout(widths = c(2, 3))
+p_subject + p_stim + plot_layout(widths = c(2, 3), guides = "collect")
 
 
 # Condition effect -----------------------
@@ -135,3 +135,17 @@ anova(mod_rndm.cond, mod_fix.cond, refit = FALSE)
 model_parameters(mod_rndm.cond, ci_method = "S")
 # We can see that ordered stimuli are responded to faster, but there results are
 # not significant.
+
+# Questions -----------------------
+
+# The stimuli were constructed by combining 3 circles with *different* numbers
+# of dots in them: either 1, 2, 3, and 4.
+
+# How many different stimuli can be constructed by combining these circles?
+choose(n = 4, k = 3) * factorial(3)
+
+# How many levels did we have?
+nlevels(order_data_correct$Stim)
+
+# Does this affect our modeling decisions?
+# Why?

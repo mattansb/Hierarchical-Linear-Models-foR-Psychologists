@@ -1,34 +1,53 @@
-library(dplyr)
+library(tidyverse)
+library(datawizard)
 
 library(lmerTest)
 
-# Convergence  ---------------------------
-
-# Let's use the same example from our single-trial RT analysis.
-data(stroop, package = "afex")
-?afex::stroop
-
-stroop_1 <- stroop |>
-  filter(
-    pno %in% paste0("s1_", 1:10), # use only 10 subjects for ease of example
-    acc == 1 # only correct responses
-  ) |>
-  # set contrasts to sum coding (instead of default treatment coding):
-  mutate(
-    condition = C(condition, contr = contr.sum),
-    congruency = C(congruency, contr = contr.sum)
-  )
+library(performance)
+library(parameters)
 
 
-# This model will not converge:
-mod <- glmer(
-  rt ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1
+# Setup -----------------------------------------------------------------
+
+# Let's use the same example from 3-level model.
+
+# This model will not converge *and* will give a warning about singular fit:
+mod <- lmer(
+  math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
+  data = mlmRev::egsingle
 )
 
+# Singular fits -------------------------------------------------------
+
+# This model is indeed singular:
+check_singularity(mod)
+
+# This means we have a problem with the random effects structure.
+# In this case, we can see it with the correlation between the random effects
+# for childid being exactly 1.00:
+VarCorr(mod)
+
+# Is this okay?
+
+# If we're interested in inferences on the random effects: no - estimates and
+# standard errors of the random effects are not reliable:
+model_parameters(mod, effects = "random", ci_random = TRUE) # ! (Waring: potentially long run time)
+
+# If we're only interested in the fixed effects: maybe - fixed effects estimates
+# are still reliable, but their standard errors are based on the estimated random
+# effects and so might not be reliable.
+
+# It is recommended to use other methods of inference that are not based on the simple
+# standard errors (also known as Wald standard errors) such:
+# - Compare models using likelihood ratio tests
+# - Profile CIs (ignore SE, t, p - look only at CIs):
+model_parameters(mod, effects = "fixed", ci_method = "profile") # ! (Waring: potentially long run time)
+# - Non-parametric Bootstrapping
+
+# Convergence issues -------------------------------------------------------
+
 # We already saw that this warning can be ignored:
-performance::check_convergence(mod)
+check_convergence(mod)
 
 # But let's try and make it go away *without* reducing the random effects
 # structure (i.e., without going from a maximal model to a non-maximal model).
@@ -44,14 +63,13 @@ lmerControl(calc.derivs = FALSE)
 glmerControl(calc.derivs = FALSE)
 
 
-mod_no.derivs <- glmer(
-  rt ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1,
+mod_no.derivs <- lmer(
+  math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
+  data = mlmRev::egsingle,
 
-  control = glmerControl(calc.derivs = FALSE)
+  control = lmerControl(calc.derivs = FALSE)
 )
-# It worked!
+# Didn't work :(
 
 ## 2. Use a different optimizer ----------------
 
@@ -60,12 +78,11 @@ mod_no.derivs <- glmer(
 lmerControl("bobyqa")
 glmerControl("bobyqa")
 
-mod_change.optim <- glmer(
-  rt ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1,
+mod_change.optim <- lmer(
+  math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
+  data = mlmRev::egsingle,
 
-  control = glmerControl("bobyqa")
+  control = lmerControl("bobyqa")
 )
 # It worked!
 
@@ -75,36 +92,35 @@ mod_change.optim <- glmer(
 ## 3. Reparameterize the model ----------------
 
 # This can mean:
-# - re-scaling numerical variables
+# - re-scaling or centering numerical variables
 # - changing contrasts for factors (treatment, cell-mean [below], ...)
 # - ...
 
-glmer(
-  rt ~ 0 + condition:congruency + (0 + condition:congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1
+mod_standardized <- lmer(
+  math ~ standardize(grade) +
+    (standardize(grade) | childid:schoolid) +
+    (standardize(grade) | schoolid),
+  data = mlmRev::egsingle
 )
-# This doesn't work...
+# Didn't work :(
 
-# It can fir the model using complex random intercepts (CRI), per Scandola &
-# Tidoni (2024) https://doi.org/10.1177/25152459231214454
+# We can also fit the model using complex random intercepts (CRI), per Scandola
+# & Tidoni (2024) https://doi.org/10.1177/25152459231214454
 #
 # This means going from this (x is a numeric predictor and f is a factor):
 y ~ x * f + (1 + x * f | g)
 # becomes:
 y ~ x * f + (1 | g1) + (1 + x | g1:f)
 
-mod_cri <- glmer(
-  rt ~ condition *
-    congruency +
-    (1 | pno) +
-    (1 | pno:condition) +
-    (1 | pno:congruency) +
-    (1 | pno:condition:congruency),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1
-)
-# It worked!
+# Since out model has only one numeric predictor, we cannot demonstrate this,
+# if we included "female":
+math ~ grade + black + (grade | childid:schoolid) + (grade + black | schoolid)
+# CRI would be:
+math ~ grade +
+  black +
+  (grade | childid:schoolid) +
+  (grade | schoolid) +
+  (1 | schoolid:black)
 
 # Models with CRIs uses a different number of degrees of freedom, so if you're
 # comparing models make sure they are all using CRI or all NOT using CRI.
@@ -123,12 +139,9 @@ mod_cri <- glmer(
 # We've seen that specifying independent random effects can be done with the ||
 # (double bars) in our second lesson, but a more general form of this would be
 # to use diag() which also supports factors:
-mod_diag <- glmer(
-  rt ~ condition * congruency + diag(condition * congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1,
-
-  control = glmerControl("bobyqa")
+mod_diag <- lmer(
+  math ~ grade + diag(grade | childid:schoolid) + diag(grade | schoolid),
+  data = mlmRev::egsingle
 )
 # It worked!
 
@@ -138,15 +151,14 @@ parameters::compare_parameters(
   mod,
   mod_no.derivs,
   mod_change.optim,
+  mod_standardized,
   mod_diag,
-  mod_cri,
 
   select = "{estimate} ({se})"
 ) |>
   print(digits = 4)
-# We can see that all methods that worked give very similar estimates and
-# standard errors (except for `calc.derivs = FALSE` that gives slightly smaller
-# SEs).
+# We can see that all methods (even those that didn't eliminate convergence
+# issues) give very similar estimates and standard errors.
 
 ## 5. Bayes! ----------------
 
@@ -156,9 +168,8 @@ parameters::compare_parameters(
 
 # You can use {brms}, which is a bit more involved (but IMO totally worth it):
 brms::brm(
-  rt ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1,
+  math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
+  data = mlmRev::egsingle
   # prior = ... # YOU WOULD NEED TO SPECIFY PRIORS FOR THIS MODEL!
 )
 
@@ -166,8 +177,7 @@ brms::brm(
 # Or you can use {rstanarm}, which is a bit more plug-and-play (but also less
 # flexible):
 rstanarm::stan_glmer(
-  rt ~ condition * congruency + (condition * congruency | pno),
-  family = inverse.gaussian(link = "identity"),
-  data = stroop_1,
+  math ~ grade + (grade | childid:schoolid) + (grade | schoolid),
+  data = mlmRev::egsingle
   # prior = ... # YOU WOULD NEED TO SPECIFY PRIORS FOR THIS MODEL!
 )

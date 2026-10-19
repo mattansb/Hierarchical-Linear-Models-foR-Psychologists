@@ -15,12 +15,9 @@ library(MSBMisc) # for r2_pseudo()
 # - was a measure of processing speed: the average response time (RT) across
 # trials (in milliseconds).
 
-download.file(
-  "https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip",
-  temp <- tempfile()
+dataset <- datawizard::data_read(
+  "https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip"
 )
-dataset <- haven::read_sav(unz(temp, "SPSS_Chapter6/SPSS_Chapter6.sav"))
-unlink(temp)
 
 head(dataset)
 
@@ -371,12 +368,9 @@ slopes(
 
 # Exercise ----------------------------------------------------------------
 
-download.file(
-  "https://www.intensivelongitudinal.com/ch4/ch4R.zip",
-  temp <- tempfile()
+dataex <- datawizard::data_read(
+  "https://www.intensivelongitudinal.com/ch4/ch4R.zip"
 )
-dataex <- read.csv(unz(temp, "ch4R/time.csv"))
-unlink(temp)
 
 # this data is from Bolger and Laurenceau (2013), chapter 4. It's simulated data
 # that is intended to represent a study of wives from 50 heterosexual married

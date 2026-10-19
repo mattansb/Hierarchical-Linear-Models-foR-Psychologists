@@ -10,13 +10,9 @@ library(MSBMisc) # for r2_pseudo()
 
 # The data -------------------------------------------------------------------
 
-download.file(
-  "https://www.pilesofvariance.com/Chapter8/SPSS/SPSS_Chapter8.zip",
-  temp <- tempfile()
+dataset <- datawizard::data_read(
+  "https://www.pilesofvariance.com/Chapter8/SPSS/SPSS_Chapter8.zip"
 )
-dataset <- haven::read_sav(unz(temp, "SPSS_Chapter8/SPSS_Chapter8.sav"))
-unlink(temp)
-
 
 # Data comes from the Cognition, Health, and Aging Project, in which 6
 # assessments were collected over two weeks. Besides RT of a cognitive task, the
@@ -299,12 +295,9 @@ anova(mod_rndm.mood, mod_mood, refit = FALSE)
 
 # Exercise --------------------------------------------------------------------
 
-download.file(
-  "https://www.pilesofvariance.com/Chapter9/SPSS/SPSS_Chapter9.zip",
-  temp <- tempfile()
+dataset2 <- datawizard::data_read(
+  "https://www.pilesofvariance.com/Chapter9/SPSS/SPSS_Chapter9.zip"
 )
-dataset2 <- haven::read_sav(unz(temp, "SPSS_Chapter9/SPSS_Chapter9.sav"))
-unlink(temp)
 
 head(dataset2)
 # Seven (approximately annual) assessments were collected from 200 adolescent

@@ -13,13 +13,9 @@ library(parameters)
 
 # Data ----------------------------------------------------------------
 
-download.file(
-  "https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip",
-  temp <- tempfile()
+dataset <- datawizard::data_read(
+  "https://www.pilesofvariance.com/Chapter6/SPSS/SPSS_Chapter6.zip"
 )
-dataset <- haven::read_sav(unz(temp, "SPSS_Chapter6/SPSS_Chapter6.sav"))
-unlink(temp)
-
 
 dataset$PersonID <- factor(dataset$PersonID)
 head(dataset, n = 6)

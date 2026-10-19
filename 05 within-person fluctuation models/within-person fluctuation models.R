@@ -208,7 +208,7 @@ mod_mood <- lmer(
   data = dataset
 )
 
-model_parameters(mod_mood, ci_method = "S")
+model_parameters(mod_mood)
 # The fixed intercept (gamma_00 = 1.30) is now the expected number of physical
 # symptoms when all predictors have a value of 0: for a person with average mood
 # equal to the average mood in the sample, and on on a day when he is at his
@@ -286,7 +286,7 @@ mod_rndm.mood <- lmer(
   data = dataset
 )
 
-model_parameters(mod_rndm.mood, ci_method = "S", ci_random = TRUE)
+model_parameters(mod_rndm.mood, ci_random = TRUE)
 anova(mod_rndm.mood, mod_mood, refit = FALSE)
 # Including the random effect didn't improved the model - it made the fit
 # somewhat worse.

@@ -160,7 +160,7 @@ dataset <- dataset |>
 #   obs. i.
 
 mod_rndm.intr <- lmer(rt ~ 1 + (1 | PersonID), data = dataset)
-model_parameters(mod_rndm.intr, ci_method = "S")
+model_parameters(mod_rndm.intr)
 
 icc(mod_rndm.intr)
 # 81.7% of the variance in the RT outcome is BP variance in mean RT.
@@ -184,7 +184,7 @@ icc(mod_rndm.intr)
 #   + error for person j in obs. i
 
 mod_fixef.time <- lmer(rt ~ time + (1 | PersonID), data = dataset)
-model_parameters(mod_fixef.time, ci_method = "S")
+model_parameters(mod_fixef.time)
 
 # mean trajectory for RT that starts at fixed intercept of gamma00 = 1,899.6
 # at session 1 and decreases linearly over time by fixed linear slope of
@@ -236,7 +236,7 @@ r2_pseudo(mod_rndm.time, mod_rndm.intr) # random + fixed
 r2_pseudo(mod_rndm.time, mod_fixef.time, mnull = mod_rndm.intr) # random only
 # ? Why has the pseudo-R2 for the random intercept changed??
 
-model_parameters(mod_rndm.time, ci_method = "S", ci_random = TRUE)
+model_parameters(mod_rndm.time, ci_random = TRUE)
 # There seems to be a negative correlation... How would we interpreter it?
 
 # Quadratic models (that's new!) ----------------------
@@ -268,7 +268,7 @@ mod_fixed.poly2 <- lmer(
 )
 # This syntax will give us the same:
 #     rt ~ time + I(time ^ 2) + (time | PersonID)
-model_parameters(mod_fixed.poly2, ci_method = "S")
+model_parameters(mod_fixed.poly2)
 # raw = TRUE is important - if set to FALSE (default) it centers the predictor
 # and changes the interpretation of the coefs (but not the model fit).
 
@@ -322,7 +322,7 @@ check_convergence(mod_rndm.poly2)
 
 anova(mod_rndm.poly2, mod_fixed.poly2, refit = FALSE)
 
-model_parameters(mod_rndm.poly2, ci_method = "S", effects = "fixed")
+model_parameters(mod_rndm.poly2, effects = "fixed")
 VarCorr(mod_rndm.poly2)
 # What does the correlation between time and time^2 tell us?
 

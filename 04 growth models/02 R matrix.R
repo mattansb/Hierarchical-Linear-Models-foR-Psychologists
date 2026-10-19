@@ -64,7 +64,7 @@ anova(mod_sssn.ar1, mod_sssn, refit = FALSE)
 # (Which variance component did we explain with the AR1 structure?)
 
 # Let's look at the AR1 parameter:
-model_parameters(mod_sssn.ar1, ci_method = "s")
+model_parameters(mod_sssn.ar1)
 # Positive := residuals tend to be similar session-to-session.
 # (See if you can see it in the plot)
 

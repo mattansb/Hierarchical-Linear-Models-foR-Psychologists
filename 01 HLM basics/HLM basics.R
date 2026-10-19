@@ -108,7 +108,7 @@ mod_rndm.intr <- lmer(
 summary(mod_rndm.intr)
 
 # see tidy parameters:
-model_parameters(mod_rndm.intr, ci_method = "Satterthwaite") # We'll discuss this next week
+model_parameters(mod_rndm.intr)
 
 # Check out that the output refers to:
 # 1. Fixed effects
@@ -217,7 +217,7 @@ emtrends(
 
 # See how Time effect for group 0 is equal to the effect of time in the main
 # model:
-model_parameters(mod_max.mixed, ci_method = "S")
+model_parameters(mod_max.mixed) # What's up with those df? (we'll discuss next week)
 
 
 ## Extracting model parts ---------------------------------

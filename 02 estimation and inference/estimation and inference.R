@@ -76,7 +76,8 @@ mod_rndm.intr <- lmer(
   REML = TRUE # this is the default
 )
 
-model_parameters(mod_rndm.intr, ci_method = "satterthwaite") # or just ci_method = "s"
+# Default is the Satterthwaite approximation
+model_parameters(mod_rndm.intr) # ci_method = "satterthwaite" or ci_method = "s"
 model_parameters(mod_rndm.intr, ci_method = "kenward") # or just ci_method = "kr"
 
 
@@ -146,7 +147,7 @@ r2(mod_rndm.intr)
 
 mod_fixd.sssn <- lmer(rt ~ session + (1 | PersonID), data = dataset)
 # (rt ~ session is the same as rt ~ 1 + session)
-model_parameters(mod_fixd.sssn, ci_method = "S")
+model_parameters(mod_fixd.sssn)
 
 
 # Q: The fixed effect for session is significant - how can we interpret this?
@@ -191,7 +192,7 @@ mod_full <- lmer(rt ~ session + (session | PersonID), data = dataset)
 
 
 # let's see the full model's parameters:
-model_parameters(mod_full, ci_method = "S")
+model_parameters(mod_full)
 
 
 ## Models comparison ----------------------------------------------------------
@@ -259,7 +260,7 @@ bayestestR::bayesfactor_models(
 anova(mod_rndm.sssn, mod_full, refit = FALSE)
 # What does this mean?
 
-model_parameters(mod_full, ci_method = "S", ci_random = TRUE)
+model_parameters(mod_full, ci_random = TRUE)
 # Look at the correlation
 
 # To understand this correlation, let's look at a plot:

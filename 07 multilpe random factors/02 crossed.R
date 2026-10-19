@@ -132,7 +132,7 @@ mod_rndm.cond <- lmer(
 anova(mod_rndm.cond, mod_fix.cond, refit = FALSE)
 # There *might* be a difference between subjects in their order-effects.
 
-model_parameters(mod_rndm.cond, ci_method = "S")
+model_parameters(mod_rndm.cond)
 # We can see that ordered stimuli are responded to faster, but there results are
 # not significant.
 

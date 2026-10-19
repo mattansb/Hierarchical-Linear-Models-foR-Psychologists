@@ -150,7 +150,7 @@ VarCorr(mod_grade)
 r2_pseudo(mod_grade, mod_rndm.intr)[3, ]
 
 
-model_parameters(mod_grade, ci_method = "S")
+model_parameters(mod_grade)
 # There is a positive linear trend such that the IRT improves by 0.77 points
 # from year to year on average.
 # What does this significance refer to?
@@ -196,7 +196,7 @@ r2_pseudo(mod_rndm.grade2, mod_rndm.grade)[2, ]
 ranova(mod_rndm.grade2)
 
 # We not get proper inference for the linear growth effect:
-model_parameters(mod_rndm.grade2, ci_method = "S")
+model_parameters(mod_rndm.grade2)
 
 
 ## Conditional growth model -----------------------------------------------
@@ -234,7 +234,7 @@ anova(mod_lowinc, mod_rndm.grade2)
 # The models are different - but note that the difference between models
 # accounts for the main effect AND the interaction.
 
-model_parameters(mod_lowinc, ci_method = "S") |> print(digits = 3)
+model_parameters(mod_lowinc, digits = 4)
 # - The simple effect of grade (for school with no lower income students) is 0.88.
 # - The simple effect of lowinc (at grade=0) is -0.01 -> the more lower income
 #   the student body is, the lower the math grades at grade 0 are.

@@ -147,7 +147,7 @@ ranova(mod_rndm.intr) # if you need it...
 
 mod_wthn.prsn <- lmer(RT ~ Condition + (Condition | ID), data = ADHD_data)
 
-model_parameters(mod_wthn.prsn, ci_method = "S")
+model_parameters(mod_wthn.prsn)
 # We can see that there is a large [-414.06,  -23.03] interference effect.
 
 fixef(mod_wthn.prsn) # the "gamma"s
@@ -221,7 +221,7 @@ mod_adhd <- lmer(
 
 anova(mod_adhd, mod_wthn.prsn, refit = TRUE) # fit isn't better
 
-(mod_adhd_mp <- model_parameters(mod_adhd, ci_method = "S", effects = "fixed"))
+(mod_adhd_mp <- model_parameters(mod_adhd, effects = "fixed"))
 # We can see that the effect for inatten is rather small (an increase in 1
 # symptom amounts to [-14, +34] ms change in reaction times - in children).
 
@@ -289,12 +289,7 @@ mod_adhd_mp
 
 
 # Or we can just get the whole thing directly:
-model_parameters(
-  mod_adhd,
-  ci_method = "S",
-  effects = "fixed",
-  standardize = "pseudo"
-)
+model_parameters(mod_adhd, effects = "fixed", standardize = "pseudo")
 
 # Note that the level 2 effect of inatten (0.11) is stronger than the level 1
 # effect (-0.09) - how can it be the weaker effect is the significant one??
@@ -335,7 +330,7 @@ mod_cli <- lmer(RT ~ inatten_c * Condition + (Condition | ID), data = ADHD_data)
 #             (gamma_20 + gamma21 * Symptoms_j + U_2j) * Incong_d_ij + e_ji
 #   (gamma11 and gamma21 are the cross-level interaction estimates)
 
-model_parameters(mod_cli, ci_method = "S", effects = "fixed") # dummy var interactions not sig
+model_parameters(mod_cli, effects = "fixed") # dummy var interactions not sig
 
 # comparing with model with no int.:
 
@@ -354,12 +349,7 @@ MSBMisc::r2_pseudo(mod_cli, mod_adhd)
 # Very little compared to the previous model...
 
 # And Pseudo Std. Coef:
-model_parameters(
-  mod_cli,
-  ci_method = "S",
-  effects = "fixed",
-  standardize = "pseudo"
-)
+model_parameters(mod_cli, effects = "fixed", standardize = "pseudo")
 
 
 ### Follow up analysis --------------

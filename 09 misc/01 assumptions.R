@@ -49,7 +49,7 @@ sleepstudy |>
 # 2. Using robust standard errors:
 #    See https://jepusto.github.io/clubSandwich/
 #    This is as easy as:
-parameters::model_parameters(mod, ci_method = "S", vcov = "CR2")
+parameters::model_parameters(mod, vcov = "CR2")
 # 2. Going GAMLSS - modeling level-1 variance.
 #   - with {gamlss} (Frequentist)
 #   - with {brms} (Bayesian)

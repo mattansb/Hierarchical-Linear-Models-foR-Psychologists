@@ -105,13 +105,9 @@ dataset |>
     tolerance_numeric = 0.01
   )
 
-# Visually:
-dataset |>
-  mutate(
-    PersonID = factor(PersonID) |> fct_reorder(mood, .fun = mean)
-  ) |>
-  ggplot(aes(PersonID, mood)) +
-  geom_point() +
+# Visually (caterpillar plot):
+ggplot(dataset, aes(reorder(PersonID, mood, na.rm = TRUE), mood)) +
+  stat_summary(geom = "linerange", fun.max = max, fun.min = min) +
   stat_summary(geom = "point", color = "red", size = 3) +
   scale_x_discrete("Person", labels = NULL) +
   scale_y_continuous(

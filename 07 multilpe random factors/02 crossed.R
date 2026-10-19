@@ -78,11 +78,7 @@ icc(mod_rndm.intr, by_group = TRUE) # ICC for each group
 ranova(mod_rndm.intr) # Both are significant (duh)
 
 # What does this look like?
-p_subject <- order_data_correct |>
-  mutate(
-    Subject = fct_reorder(Subject, rt, .fun = mean)
-  ) |>
-  ggplot(aes(Subject, rt)) +
+p_subject <- ggplot(order_data_correct, aes(reorder(Subject, rt), rt)) +
   stat_sum(alpha = 0.4, shape = 16) +
   stat_summary(geom = "point", fun = "mean", color = "red", size = 3) +
   theme_bw() +
@@ -90,15 +86,12 @@ p_subject <- order_data_correct |>
     strip.background = element_blank(),
     strip.text = element_blank(),
     axis.text.x = element_blank()
-  )
+  ) +
+  labs(x = "Subject")
 
-p_stim <- p_subject +
-  aes(x = Stim) +
-  (order_data_correct |>
-    mutate(
-      Stim = fct_reorder(Stim, rt, .fun = mean)
-    ))
+p_stim <- p_subject + aes(x = reorder(Stim, rt)) + labs(x = "Stim")
 
+# strip-chart:
 p_subject + p_stim + plot_layout(widths = c(2, 3), guides = "collect")
 
 

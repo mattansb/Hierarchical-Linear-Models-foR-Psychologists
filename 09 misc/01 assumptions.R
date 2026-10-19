@@ -27,11 +27,7 @@ check_heteroscedasticity(mod) |> plot()
 # By grouping variable:
 sleepstudy$resid <- residuals(mod)
 
-sleepstudy |>
-  mutate(
-    Subject = fct_reorder(Subject, resid^2)
-  ) |>
-  ggplot(aes(Subject, resid^2)) +
+ggplot(sleepstudy, aes(reorder(Subject, resid^2), resid^2)) +
   geom_point() +
   stat_summary(geom = "point", size = 3, color = "red") +
   scale_y_continuous(
@@ -40,7 +36,8 @@ sleepstudy |>
     labels = scales::label_comma()
   ) +
   coord_trans(y = "sqrt") +
-  theme_bw()
+  theme_bw() +
+  labs(x = "Subject")
 # It looks like some subjects have more within-person (level 1) variance (334,
 # 308) than others...
 

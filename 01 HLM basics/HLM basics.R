@@ -129,6 +129,13 @@ icc(mod_rndm.intr)
 # (For now we'll ignore the "Adjusted" / "Unadjusted" distinction. The model is
 # an empty model - both are the unconditional ICC)
 
+# We can visualize with with a **strip-chart**:
+ggplot(dataset_long, aes(reorder(PersonID, outcome), outcome)) +
+  geom_point() +
+  stat_summary(geom = "point", size = 2, color = "red") +
+  theme_bw() +
+  labs(x = "Person", y = "Outcome")
+
 ## Extracting model parts ---------------------------------
 
 # This model's notation would be:

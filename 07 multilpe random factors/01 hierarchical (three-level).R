@@ -58,14 +58,11 @@ icc(mod_rndm.intr, by_group = TRUE) # stability within Child (within school) and
 ranova(mod_rndm.intr)
 # We can see that both random intercept terms are significant and substantial.
 
+# Visually (caterpillar plot):
 set.seed(20260330)
 egsingle |>
   filter(schoolid %in% sample(levels(schoolid), 12)) |>
-  mutate(
-    childid = fct_reorder(childid, math, .fun = mean),
-    schoolid = fct_reorder(schoolid, math, .fun = mean)
-  ) |>
-  ggplot(aes(childid, math)) +
+  ggplot(aes(reorder(childid, math), math)) +
   facet_wrap(facets = vars(schoolid), scales = "free_x", nrow = 2) +
   stat_summary(
     aes(x = NA, yintercept = after_stat(y), color = "School"),
@@ -73,7 +70,7 @@ egsingle |>
     geom = "hline",
     linewidth = 1
   ) +
-  geom_point(alpha = 0.8, shape = 16) +
+  stat_summary(geom = "linerange", fun.max = max, fun.min = min) +
   stat_summary(aes(color = "Child"), fun = "mean", geom = "point", size = 2) +
   labs(x = "Child Within School", y = "Math") +
   theme_bw() +

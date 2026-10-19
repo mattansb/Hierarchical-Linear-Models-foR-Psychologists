@@ -110,7 +110,7 @@ mod_standardized <- lmer(
 # This means going from this (x is a numeric predictor and f is a factor):
 y ~ x * f + (1 + x * f | g)
 # becomes:
-y ~ x * f + (1 | g1) + (1 + x | g1:f)
+y ~ x * f + (1 + x | g) + (1 + x | g:f)
 
 # Since out model has only one numeric predictor, we cannot demonstrate this,
 # if we included "female":
